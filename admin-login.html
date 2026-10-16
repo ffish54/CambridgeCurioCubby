@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login | Curio Cubbyhole</title>
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-login-page">
+
+  <main class="login-card">
+    <p class="eyebrow">CAMBRIDGE CURIO CUBBYHOLE</p>
+    <h1>The Curio Cabinet</h1>
+    <p>Sign in to manage your Journal.</p>
+
+    <form id="login-form">
+      <label for="email">Email address</label>
+      <input id="email" type="email" required autocomplete="username">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" required
+             autocomplete="current-password">
+
+      <button type="submit">Sign In</button>
+      <p id="login-message" role="status" aria-live="polite"></p>
+    </form>
+
+    <a href="index.html">← Return to the shop</a>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/admin-login.js"></script>
+</body>
+</html>
