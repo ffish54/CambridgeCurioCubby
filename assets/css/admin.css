@@ -370,7 +370,8 @@ body.admin-dashboard {
   color: #fffdf7;
 }
 
-.admin-dashboard button:disabled {
+.admin-dashboard button:disabled,
+.admin-dashboard input:disabled {
   opacity: 0.55;
   cursor: wait;
 }
@@ -493,6 +494,51 @@ body.admin-dashboard {
   border: 1px solid #c5b693;
   background: #fffdf7;
   color: var(--navy);
+}
+
+.cover-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.editor-panel .cover-tools input[type="file"] {
+  flex: 1 1 240px;
+  width: auto;
+  min-width: min(100%, 220px);
+  max-width: 100%;
+  padding: 6px;
+  border: 1px solid #c5b693;
+  background: #fffdf7;
+  color: var(--navy);
+  font-size: 14px;
+}
+
+.editor-panel input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--navy);
+  background: var(--navy);
+  color: var(--cream);
+  font: inherit;
+  cursor: pointer;
+}
+
+.editor-panel input[type="file"]::file-selector-button:hover {
+  background: #203a52;
+}
+
+.cover-tools .line-button {
+  padding: 10px 14px;
+}
+
+.cover-tools .link-button {
+  font-size: 14px;
+}
+
+#cover-message {
+  min-height: 0;
 }
 
 .editor-panel textarea {

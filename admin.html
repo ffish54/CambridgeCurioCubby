@@ -82,7 +82,16 @@
           <p class="hint">Line breaks are saved. A draft can be empty; a published post needs writing.</p>
 
           <label for="cover-image">Cover image URL <span class="optional">(optional)</span></label>
-          <input id="cover-image" name="cover_image" type="url" placeholder="https://">
+          <input id="cover-image" name="cover_image" type="url" inputmode="url" placeholder="https://" aria-describedby="cover-hint">
+
+          <label for="cover-file">From this device <span class="optional">(optional)</span></label>
+          <div class="cover-tools">
+            <input id="cover-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" aria-describedby="cover-hint">
+            <button type="button" id="upload-cover" class="line-button">Upload</button>
+            <button type="button" id="clear-cover-file" class="link-button">Clear file</button>
+          </div>
+          <p class="hint" id="cover-hint">JPEG, PNG, WebP, or GIF, up to 5 MB. Upload stores the image and fills the address. A pasted link still works.</p>
+          <p id="cover-message" class="status-message" role="status" aria-live="polite"></p>
           <img id="cover-preview" class="cover-preview" alt="Cover preview" hidden>
 
           <label class="check" for="featured">

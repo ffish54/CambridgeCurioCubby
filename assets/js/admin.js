@@ -26,7 +26,32 @@ const categoryInput = document.getElementById("category");
 const excerptInput = document.getElementById("excerpt");
 const contentInput = document.getElementById("content");
 const coverInput = document.getElementById("cover-image");
+const coverFileInput = document.getElementById("cover-file");
+const uploadCoverButton = document.getElementById("upload-cover");
+const clearCoverFileButton = document.getElementById("clear-cover-file");
+const coverMessage = document.getElementById("cover-message");
 const coverPreview = document.getElementById("cover-preview");
+
+// Bucket created by supabase/journal-covers.sql. The publishable key cannot
+// create it. Storage policies, not this page, decide who can write.
+const COVER_BUCKET = "journal-covers";
+const COVER_MAX_BYTES = 5 * 1024 * 1024;
+const COVER_TYPES = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif"
+};
+const COVER_MIME_EXT = {
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/pjpeg": "jpg",
+  "image/png": "png",
+  "image/x-png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif"
+};
 const featuredInput = document.getElementById("featured");
 const statusInput = document.getElementById("status");
 const saveDraftButton = document.getElementById("save-draft");
@@ -42,6 +67,7 @@ let slugTouched = false;
 let savedState = "";
 let busy = false;
 let leaving = false;
+let coverPreviewToken = 0;
 
 function clientReady() {
   try {
@@ -140,10 +166,27 @@ function bindEvents() {
   slugInput.addEventListener("input", () => {
     slugTouched = slugInput.value.trim() !== slugify(titleInput.value);
   });
-  coverInput.addEventListener("input", updateCoverPreview);
-  coverPreview.addEventListener("error", () => {
-    coverPreview.hidden = true;
+  coverInput.addEventListener("input", () => {
+    updateCoverPreview();
+    setCoverMessage("");
   });
+  coverFileInput.addEventListener("change", () => {
+    const file = selectedCoverFile();
+    if (!file) {
+      setCoverMessage("");
+      return;
+    }
+    const checked = validateCoverFile(file);
+    if (!checked.ok) {
+      setCoverMessage(checked.message, "error");
+      return;
+    }
+    setCoverMessage(file.name + " is ready. Choose Upload to store it.");
+  });
+  uploadCoverButton.addEventListener("click", () => {
+    uploadCover();
+  });
+  clearCoverFileButton.addEventListener("click", clearCoverFile);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const nextStatus = statusInput.value === "published" ? "published" : "draft";
@@ -355,6 +398,7 @@ function openNew(options = {}) {
   publishedNote.textContent = "";
   deleteButton.hidden = true;
   unpublishButton.hidden = true;
+  clearCoverFile();
   updateCoverPreview();
   setFormMessage("");
   snapshotForm();
@@ -371,6 +415,7 @@ function fillForm(post, options = {}) {
   contentInput.value = post.content || "";
   syncCategory(post.category);
   coverInput.value = post.cover_image || "";
+  clearCoverFile();
   featuredInput.checked = Boolean(post.featured);
   statusInput.value = post.status === "published" ? "published" : "draft";
   editorHeading.textContent = "Edit post";
@@ -417,14 +462,120 @@ function syncCategory(value) {
 }
 
 function updateCoverPreview() {
+  const token = ++coverPreviewToken;
   const parsed = parseCover(coverInput.value);
   if (!parsed.ok || !parsed.value) {
     coverPreview.hidden = true;
     coverPreview.removeAttribute("src");
     return;
   }
+  coverPreview.onload = () => {
+    if (token !== coverPreviewToken) return;
+    coverPreview.hidden = false;
+  };
+  coverPreview.onerror = () => {
+    if (token !== coverPreviewToken) return;
+    coverPreview.hidden = true;
+    if (parsed.value.indexOf("/object/public/" + COVER_BUCKET + "/") !== -1) {
+      setCoverMessage("The cover address is filled in, but the image did not load. Make the journal-covers bucket public, then save the post.", "error");
+    }
+  };
   coverPreview.src = parsed.value;
   coverPreview.hidden = false;
+}
+
+function selectedCoverFile() {
+  return coverFileInput.files && coverFileInput.files[0] ? coverFileInput.files[0] : null;
+}
+
+function clearCoverFile() {
+  coverFileInput.value = "";
+  setCoverMessage("");
+}
+
+async function uploadCover() {
+  if (busy) return;
+
+  const file = selectedCoverFile();
+  const checked = validateCoverFile(file);
+  if (!checked.ok) {
+    setCoverMessage(checked.message, "error");
+    coverFileInput.focus();
+    return;
+  }
+
+  busy = true;
+  setBusy(true);
+  setCoverMessage("Uploading cover…");
+  let stored = false;
+
+  try {
+    const auth = await adminSession();
+    if (!auth.ok) {
+      setCoverMessage(auth.message, "error");
+      return;
+    }
+
+    if (!supabaseClient.storage || typeof supabaseClient.storage.from !== "function") {
+      setCoverMessage("Supabase Storage did not load. Reload the page.", "error");
+      return;
+    }
+
+    const path = coverObjectPath(checked.ext);
+    const { error } = await supabaseClient.storage.from(COVER_BUCKET).upload(path, file, {
+      contentType: checked.type,
+      cacheControl: "31536000",
+      upsert: false
+    });
+
+    if (error) {
+      setCoverMessage(friendlyStorageError(error), "error");
+      return;
+    }
+
+    const published = supabaseClient.storage.from(COVER_BUCKET).getPublicUrl(path);
+    const publicUrl = published && published.data && published.data.publicUrl;
+    if (!publicUrl) {
+      setCoverMessage("The file uploaded, but no public address came back. Make the journal-covers bucket public, then try again.", "error");
+      return;
+    }
+
+    coverInput.value = publicUrl;
+    stored = true;
+    setCoverMessage("Cover uploaded. Save or publish the post to keep this image.", "ok");
+    updateCoverPreview();
+  } catch (error) {
+    setCoverMessage("Could not reach Supabase Storage. Try again.", "error");
+  } finally {
+    busy = false;
+    setBusy(false);
+    if (stored) coverFileInput.value = "";
+  }
+}
+
+async function adminSession() {
+  try {
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (error || !data || !data.user) {
+      const detail = String((error && error.message) || "");
+      if (/fetch|network|failed to fetch/i.test(detail)) {
+        return { ok: false, message: "Could not confirm the admin session. Try again." };
+      }
+      return { ok: false, message: "Sign in as the admin before uploading a cover." };
+    }
+    if (!isAdmin(data.user)) {
+      return { ok: false, message: "This signed-in account cannot upload covers." };
+    }
+
+    const sessionResult = await supabaseClient.auth.getSession();
+    const session = sessionResult && sessionResult.data && sessionResult.data.session;
+    if (!session || !session.access_token || !isAdmin(session.user)) {
+      return { ok: false, message: "Sign in as the admin before uploading a cover." };
+    }
+    return { ok: true, session: session };
+  } catch (error) {
+    return { ok: false, message: "Could not confirm the admin session. Try again." };
+  }
 }
 
 async function savePost(nextStatus) {
@@ -490,6 +641,11 @@ function collectPayload(status) {
   const category = categoryInput.value;
   const cover = parseCover(coverInput.value);
 
+  if (selectedCoverFile()) {
+    setFormMessage("The image from this device is not uploaded yet. Choose Upload, or clear the file to keep the address as it is.", "error");
+    uploadCoverButton.focus();
+    return null;
+  }
   if (!title) {
     setFormMessage("Add a title before saving.", "error");
     titleInput.focus();
@@ -680,6 +836,7 @@ function snapshotForm() {
 }
 
 function isDirty() {
+  if (selectedCoverFile()) return true;
   return formState() !== savedState;
 }
 
@@ -695,8 +852,8 @@ function focusEditor() {
 }
 
 function setBusy(isBusy) {
-  app.querySelectorAll("button").forEach((button) => {
-    button.disabled = isBusy;
+  app.querySelectorAll("button, #cover-file").forEach((control) => {
+    control.disabled = isBusy;
   });
 }
 
@@ -710,6 +867,12 @@ function setFormMessage(text, kind) {
   formMessage.textContent = text || "";
   formMessage.classList.toggle("is-error", kind === "error");
   formMessage.classList.toggle("is-ok", kind === "ok");
+}
+
+function setCoverMessage(text, kind) {
+  coverMessage.textContent = text || "";
+  coverMessage.classList.toggle("is-error", kind === "error");
+  coverMessage.classList.toggle("is-ok", kind === "ok");
 }
 
 function statusLabel(status) {
@@ -741,6 +904,101 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80)
     .replace(/-+$/g, "");
+}
+
+function extensionOf(name) {
+  const base = String(name || "").trim().toLowerCase();
+  const dot = base.lastIndexOf(".");
+  if (dot <= 0 || dot === base.length - 1) return "";
+  return base.slice(dot + 1);
+}
+
+function formatBytes(bytes) {
+  const mb = bytes / (1024 * 1024);
+  if (mb >= 0.1) {
+    const rounded = mb >= 10 ? mb.toFixed(0) : mb.toFixed(1);
+    return rounded + " MB";
+  }
+  const kb = Math.max(1, Math.round(bytes / 1024));
+  return kb + " KB";
+}
+
+function validateCoverFile(file) {
+  if (!file) {
+    return { ok: false, message: "Choose an image from this device, then choose Upload." };
+  }
+  if (!file.size) {
+    return { ok: false, message: "That file is empty. Choose a JPEG, PNG, WebP, or GIF." };
+  }
+  if (file.size > COVER_MAX_BYTES) {
+    return {
+      ok: false,
+      message: "That image is " + formatBytes(file.size) + ". Covers must be 5 MB or smaller."
+    };
+  }
+
+  const nameExt = extensionOf(file.name);
+  const mime = String(file.type || "").toLowerCase().split(";")[0].trim();
+  if (mime === "image/heic" || mime === "image/heif" || nameExt === "heic" || nameExt === "heif") {
+    return {
+      ok: false,
+      message: "HEIC photos need to be saved as JPEG first. Covers can be JPEG, PNG, WebP, or GIF."
+    };
+  }
+
+  const mimeExt = COVER_MIME_EXT[mime];
+  const nameType = COVER_TYPES[nameExt];
+  if (mime && !mimeExt) {
+    if (mime.indexOf("image/") === 0) {
+      return { ok: false, message: "Choose a JPEG, PNG, WebP, or GIF. This image type is not accepted." };
+    }
+    if (mime !== "application/octet-stream" || !nameType) {
+      return { ok: false, message: "Choose a JPEG, PNG, WebP, or GIF. Other file types are not accepted." };
+    }
+  }
+
+  if (mimeExt) {
+    return { ok: true, ext: mimeExt, type: COVER_TYPES[mimeExt] };
+  }
+  if (nameType) {
+    return { ok: true, ext: nameExt === "jpeg" ? "jpg" : nameExt, type: nameType };
+  }
+  return { ok: false, message: "Choose a JPEG, PNG, WebP, or GIF. Other file types are not accepted." };
+}
+
+function coverObjectPath(ext) {
+  let id;
+  if (window.crypto && typeof crypto.randomUUID === "function") {
+    id = crypto.randomUUID();
+  } else {
+    id = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+  }
+  return "covers/" + id + "." + ext;
+}
+
+function friendlyStorageError(error) {
+  const message = String((error && (error.message || error.error)) || "");
+  const code = String((error && (error.code || error.statusCode || error.status)) || "");
+  const detail = message + " " + code;
+  if (/NoSuchBucket|Bucket not found/i.test(detail)) {
+    return "The journal-covers bucket is not in Supabase yet. Create it with the storage setup, then try the upload again.";
+  }
+  if (code === "42501" || code === "403" || /row-level security|unauthorized|not authorized|permission denied/i.test(message)) {
+    return "Supabase refused the upload. Storage policies need to let this admin write to journal-covers.";
+  }
+  if (code === "413" || /maximum allowed size|payload too large|entity too large|exceeded/i.test(message)) {
+    return "Supabase rejected the file size. Covers must be 5 MB or smaller.";
+  }
+  if (/mime type|invalid mime|not supported/i.test(message)) {
+    return "Supabase rejected that file type. Use a JPEG, PNG, WebP, or GIF.";
+  }
+  if (code === "401" || /jwt|signature verification|invalid claim|invalid token|not authenticated|session expired/i.test(message)) {
+    return "The admin session was not accepted. Sign in again, then upload.";
+  }
+  if (/already exists|duplicate/i.test(message)) {
+    return "A file with that name is already stored. Try the upload again.";
+  }
+  return message || "The cover could not be uploaded.";
 }
 
 function parseCover(value) {
