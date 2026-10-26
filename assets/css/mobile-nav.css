@@ -47,6 +47,11 @@
         flex-wrap: nowrap;
     }
 
+    .site-header .logo img {
+        width: 58px;
+        height: 58px;
+    }
+
     html.js .site-header .main-nav,
     html.js .site-header .header-icons {
         display: none;
@@ -141,22 +146,17 @@
 
 @media (max-width: 380px) {
     .site-header .logo {
-        width: 128px;
+        width: auto;
         min-width: 0;
         max-width: calc(100% - 60px);
         height: auto;
-        min-height: 54px;
-    }
-
-    .site-header .logo-main {
-        font-size: 18px;
-        letter-spacing: 1px;
+        min-height: 0;
     }
 
     .site-header .logo img {
-        width: 120px;
+        width: 52px;
+        height: 52px;
         max-width: 100%;
-        height: auto;
     }
 }
 
