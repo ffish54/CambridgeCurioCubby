@@ -86,50 +86,18 @@ button {
 }
 
 .logo {
-    width: 170px;
-    min-width: 170px;
-    height: 72px;
-    border: 2px solid var(--gold);
-    border-radius: 14px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    background: var(--navy);
-    line-height: 0.9;
-    box-shadow: 0 0 0 4px var(--navy);
+    flex: 0 0 auto;
+    line-height: 0;
 }
 
-.logo::before,
-.logo::after {
-    content: "✦";
-    position: absolute;
-    color: var(--gold);
-    font-size: 12px;
-}
-
-.logo::before {
-    top: 5px;
-    left: 7px;
-}
-
-.logo::after {
-    bottom: 5px;
-    right: 7px;
-}
-
-.logo-small {
-    font-family: var(--heading-font);
-    font-size: 14px;
-    letter-spacing: 1px;
-}
-
-.logo-main {
-    font-family: var(--heading-font);
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 2px;
+.logo img {
+    display: block;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .main-nav {
@@ -713,27 +681,14 @@ button {
 }
 
 .footer-logo {
-    width: 145px;
-    height: 90px;
-    border: 1px solid var(--gold);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: var(--gold-light);
-    font-family: var(--heading-font);
-    line-height: 0.9;
+    line-height: 0;
 }
 
-.footer-logo span {
-    font-size: 12px;
-    letter-spacing: 1px;
-}
-
-.footer-logo strong {
-    font-size: 23px;
-    letter-spacing: 2px;
-    font-weight: 500;
+.footer-logo img {
+    display: block;
+    width: 104px;
+    height: auto;
+    border-radius: 50%;
 }
 
 .footer-message {
@@ -809,14 +764,9 @@ button {
         height: 72px;
     }
 
-    .logo {
-        width: 145px;
-        min-width: 145px;
-        height: 61px;
-    }
-
-    .logo-main {
-        font-size: 20px;
+    .logo img {
+        width: 58px;
+        height: 58px;
     }
 
     .main-nav,

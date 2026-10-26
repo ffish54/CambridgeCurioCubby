@@ -107,13 +107,17 @@ select {
 
 /* Logo */
 
-.logo img {
-    width: 155px;
-    height: auto;
-}
-
 .logo {
     flex-shrink: 0;
+    line-height: 0;
+}
+
+.logo img {
+    display: block;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 
@@ -1145,7 +1149,8 @@ select {
     }
 
     .logo img {
-        width: 125px;
+        width: 58px;
+        height: 58px;
     }
 
     .main-nav {
@@ -1546,9 +1551,11 @@ select {
 }
 
 .footer-logo img {
-    width: min(160px, 70vw);
+    display: block;
+    width: min(104px, 40vw);
     height: auto;
     margin: 0 auto 12px;
+    border-radius: 50%;
 }
 
 .footer-message {

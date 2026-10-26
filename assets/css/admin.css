@@ -36,6 +36,19 @@ body.admin-login-page {
   letter-spacing: 2px;
 }
 
+.brand-mark {
+  display: block;
+  width: 96px;
+  height: auto;
+  margin: 0 0 16px;
+  border-radius: 50%;
+}
+
+.gate .brand-mark {
+  width: 120px;
+  margin: 0 auto 18px;
+}
+
 .login-card h1 {
   margin-bottom: 8px;
   font-size: clamp(32px, 8vw, 44px);
