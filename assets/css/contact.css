@@ -93,7 +93,7 @@ select {
     max-width: 1400px;
     margin: 0 auto;
 
-    min-height: 82px;
+    min-height: 112px;
 
     padding: 0 45px;
 
@@ -114,8 +114,8 @@ select {
 
 .logo img {
     display: block;
-    width: 72px;
-    height: 72px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -1143,14 +1143,14 @@ select {
     /* Header */
 
     .header-inner {
-        min-height: 70px;
+        min-height: 84px;
 
         padding: 0 20px;
     }
 
     .logo img {
-        width: 58px;
-        height: 58px;
+        width: 72px;
+        height: 72px;
     }
 
     .main-nav {
@@ -1552,7 +1552,7 @@ select {
 
 .footer-logo img {
     display: block;
-    width: min(104px, 40vw);
+    width: min(112px, 42vw);
     height: auto;
     margin: 0 auto 12px;
     border-radius: 50%;
