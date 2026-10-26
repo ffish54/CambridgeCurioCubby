@@ -2,6 +2,19 @@
 const loginForm = document.getElementById("login-form");
 const loginMessage = document.getElementById("login-message");
 
+function isAdminUser(user) {
+  return Boolean(user && String(user.id).toLowerCase() === String(ADMIN_USER_ID).toLowerCase());
+}
+
+supabaseClient.auth.getSession().then(({ data }) => {
+  if (data.session && isAdminUser(data.session.user)) {
+    loginMessage.textContent = "Opening the cabinet…";
+    window.location.replace("admin.html");
+  }
+}).catch(() => {
+  loginMessage.textContent = "";
+});
+
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -20,7 +33,7 @@ loginForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  if (data.user.id !== ADMIN_USER_ID) {
+  if (!isAdminUser(data.user)) {
     await supabaseClient.auth.signOut();
     loginMessage.textContent = "This account is not authorised.";
     return;

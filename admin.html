@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Journal | Curio Cubbyhole</title>
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-dashboard">
+
+  <div id="gate" class="gate">
+    <p class="eyebrow">CAMBRIDGE CURIO CUBBYHOLE</p>
+    <p id="gate-message">Checking the cabinet lock…</p>
+    <noscript><p>JavaScript is required to open the cabinet.</p></noscript>
+  </div>
+
+  <div id="app" class="app is-hidden">
+    <header class="dash-header">
+      <div class="dash-brand">
+        <p class="eyebrow">CAMBRIDGE CURIO CUBBYHOLE</p>
+        <h1>The Curio Cabinet</h1>
+        <p class="dash-subtitle">Journal desk</p>
+      </div>
+      <div class="dash-account">
+        <p id="account-label" class="account-label"></p>
+        <div class="dash-account-actions">
+          <a class="header-link" href="index.html">View the shop</a>
+          <button type="button" id="sign-out" class="ghost-button">Sign out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="dash-main">
+      <section class="panel list-panel" aria-labelledby="posts-heading">
+        <div class="panel-head">
+          <h2 id="posts-heading">Entries</h2>
+          <button type="button" id="new-post" class="solid-button">New post</button>
+        </div>
+
+        <div class="filters" role="tablist" aria-label="Filter posts">
+          <button type="button" class="filter is-active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="filter" data-filter="draft" role="tab" aria-selected="false">Drafts</button>
+          <button type="button" class="filter" data-filter="published" role="tab" aria-selected="false">Published</button>
+        </div>
+
+        <p id="list-message" class="status-message" role="status" aria-live="polite"></p>
+        <ul id="post-list" class="post-list"></ul>
+      </section>
+
+      <section class="panel editor-panel" id="editor-panel" aria-labelledby="editor-heading">
+        <div class="panel-head">
+          <h2 id="editor-heading">New post</h2>
+        </div>
+        <p id="published-note" class="hint" hidden></p>
+
+        <form id="post-form" autocomplete="off">
+          <label for="title">Title</label>
+          <input id="title" name="title" type="text" required maxlength="200">
+
+          <div class="label-row">
+            <label for="slug">Slug</label>
+            <button type="button" id="slug-from-title" class="link-button">Match title</button>
+          </div>
+          <input id="slug" name="slug" type="text" required maxlength="160" spellcheck="false" autocapitalize="off">
+          <p class="hint">Filled from the title until you edit it. Used as the journal address.</p>
+
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="Recent Finds">Recent Finds</option>
+            <option value="New Stock">New Stock</option>
+            <option value="Shop News">Shop News</option>
+            <option value="Stories Behind the Items">Stories Behind the Items</option>
+            <option value="Upcoming Sales">Upcoming Sales</option>
+          </select>
+
+          <label for="excerpt">Excerpt</label>
+          <textarea id="excerpt" name="excerpt" rows="3"></textarea>
+
+          <label for="content">Content</label>
+          <textarea id="content" name="content" rows="14"></textarea>
+          <p class="hint">Line breaks are saved. A draft can be empty; a published post needs writing.</p>
+
+          <label for="cover-image">Cover image URL <span class="optional">(optional)</span></label>
+          <input id="cover-image" name="cover_image" type="url" placeholder="https://">
+          <img id="cover-preview" class="cover-preview" alt="Cover preview" hidden>
+
+          <label class="check" for="featured">
+            <input id="featured" name="featured" type="checkbox">
+            Feature this post
+          </label>
+
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="draft" selected>Draft</option>
+            <option value="published">Published</option>
+          </select>
+          <p class="hint">Drafts stay off the public journal. The first publish records the date; later edits keep it.</p>
+
+          <div class="form-actions">
+            <button type="button" id="save-draft" class="line-button">Save draft</button>
+            <button type="button" id="publish-post" class="solid-button">Publish</button>
+            <button type="button" id="unpublish-post" class="line-button" hidden>Unpublish</button>
+            <button type="button" id="delete-post" class="danger-button" hidden>Delete</button>
+          </div>
+          <p id="form-message" class="status-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
