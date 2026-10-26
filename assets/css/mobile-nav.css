@@ -43,13 +43,13 @@
 
     html.js .site-header .header-inner {
         height: auto;
-        min-height: 68px;
+        min-height: 80px;
         flex-wrap: nowrap;
     }
 
     .site-header .logo img {
-        width: 58px;
-        height: 58px;
+        width: 72px;
+        height: 72px;
     }
 
     html.js .site-header .main-nav,
@@ -72,7 +72,7 @@
         left: 0;
         right: 0;
         width: 100%;
-        max-height: calc(100dvh - 68px);
+        max-height: calc(100dvh - 84px);
         margin: 0;
         padding: 6px 0 14px;
         overflow-x: hidden;
@@ -124,7 +124,7 @@
 
     html:not(.js) .site-header .header-inner {
         height: auto;
-        min-height: 68px;
+        min-height: 80px;
         flex-wrap: wrap;
     }
 
@@ -154,8 +154,8 @@
     }
 
     .site-header .logo img {
-        width: 52px;
-        height: 52px;
+        width: 64px;
+        height: 64px;
         max-width: 100%;
     }
 }

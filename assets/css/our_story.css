@@ -90,7 +90,7 @@ button {
     top: 0;
     z-index: 1000;
 
-    height: 92px;
+    height: 116px;
 
     background: rgba(3, 16, 25, 0.98);
 
@@ -122,8 +122,8 @@ button {
 
 .logo img {
     display: block;
-    width: 78px;
-    height: 78px;
+    width: 104px;
+    height: 104px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -940,7 +940,7 @@ button {
 
 .footer-logo img {
     display: block;
-    width: 104px;
+    width: 112px;
     height: auto;
     border-radius: 50%;
     object-fit: cover;
@@ -1048,7 +1048,7 @@ button {
     /* ---------- HEADER ---------- */
 
     .site-header {
-        height: 75px;
+        height: 84px;
     }
 
     .header-inner {
@@ -1056,8 +1056,8 @@ button {
     }
 
     .logo img {
-        width: 58px;
-        height: 58px;
+        width: 72px;
+        height: 72px;
     }
 
     .main-nav,
