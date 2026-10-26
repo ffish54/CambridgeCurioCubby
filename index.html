@@ -2,6 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Recovery links that still open the shop (the Supabase Site URL) continue to the reset page. -->
+    <script>
+      (function () {
+        var hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+        var queryParams = new URLSearchParams(window.location.search);
+        var type = queryParams.get("type") || hashParams.get("type");
+        if (type !== "recovery") return;
+        window.location.replace("reset-password.html" + window.location.search + window.location.hash);
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Cambridge Curio Cubbyhole — a collection of curious things, vintage treasures and forgotten gems.">
     <title>Cambridge Curio Cubbyhole | The Cubbyhole</title>

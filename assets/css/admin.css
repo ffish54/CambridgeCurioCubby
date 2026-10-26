@@ -55,7 +55,7 @@ body.admin-login-page {
   color: var(--navy);
 }
 
-.login-card button {
+.login-card button:not(.text-link) {
   width: 100%;
   margin-top: 26px;
   padding: 14px;
@@ -66,18 +66,84 @@ body.admin-login-page {
   font: inherit;
 }
 
-.login-card button:hover {
+.login-card button:not(.text-link):hover {
   background: #203a52;
 }
 
-#login-message {
+.login-card button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.login-card .text-link {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #80652f;
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.login-card .text-link:hover {
+  color: var(--navy);
+}
+
+.login-card .hint {
+  margin: 8px 0 0;
+  color: #6d624c;
+  font-size: 14px;
+}
+
+.login-card .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.admin-login-page :focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+#login-message,
+#reset-message {
   min-height: 24px;
+  margin: 16px 0 0;
   overflow-wrap: anywhere;
 }
 
-.login-card > a {
+#login-message.is-error,
+#reset-message.is-error {
+  color: #7a3030;
+}
+
+#login-message.is-ok,
+#reset-message.is-ok {
+  color: #245c45;
+}
+
+.login-card > a,
+.login-footer a {
   color: #80652f;
   font-size: 13px;
+}
+
+.login-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 18px 0 0;
 }
 
 /* =========================================================
