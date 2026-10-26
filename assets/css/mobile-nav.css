@@ -1,0 +1,169 @@
+/* Shared mobile navigation.
+   Loaded after each page stylesheet. Colours come from that page's variables
+   so the shop palette stays intact. Paths are relative for GitHub Pages. */
+
+.mobile-menu {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    padding: 0;
+    border: 1px solid var(--gold, #c5a15b);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--cream, #f5efe2);
+    font-size: 0;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.mobile-menu::before {
+    content: "\2630";
+    font-size: 22px;
+    line-height: 1;
+}
+
+.site-header.is-open .mobile-menu::before {
+    content: "\2715";
+    font-size: 18px;
+}
+
+.mobile-menu:focus-visible {
+    outline: 2px solid var(--gold-light, #dfc27d);
+    outline-offset: 3px;
+}
+
+@media (max-width: 860px) {
+    html.js .site-header {
+        height: auto;
+    }
+
+    html.js .site-header .header-inner {
+        height: auto;
+        min-height: 68px;
+        flex-wrap: nowrap;
+    }
+
+    html.js .site-header .main-nav,
+    html.js .site-header .header-icons {
+        display: none;
+    }
+
+    html.js .site-header .mobile-menu {
+        display: inline-flex;
+    }
+
+    html.js .site-header.is-open .main-nav {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 0;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: calc(100dvh - 68px);
+        margin: 0;
+        padding: 6px 0 14px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        background: var(--navy, #0d1b2a);
+        color: var(--cream, #f5efe2);
+        border-bottom: 1px solid var(--gold, #c5a15b);
+        box-shadow: 0 18px 32px rgba(0, 0, 0, 0.38);
+        z-index: 40;
+    }
+
+    html.js .site-header.is-open .main-nav::before {
+        content: "\2726";
+        display: block;
+        padding: 6px 8vw 2px;
+        color: var(--gold, #c5a15b);
+        text-align: center;
+        letter-spacing: 0.3em;
+    }
+
+    html.js .site-header.is-open .main-nav a {
+        display: block;
+        width: 100%;
+        padding: 14px 8vw;
+        font-family: var(--heading-font, "Cormorant Garamond", Georgia, serif);
+        font-size: 22px;
+        line-height: 1.2;
+        letter-spacing: 0.3px;
+        text-align: left;
+        color: var(--cream, #f5efe2);
+    }
+
+    html.js .site-header.is-open .main-nav a::after {
+        content: none;
+    }
+
+    html.js .site-header.is-open .main-nav a:hover,
+    html.js .site-header.is-open .main-nav a:focus-visible,
+    html.js .site-header.is-open .main-nav a.active,
+    html.js .site-header.is-open .main-nav a[aria-current="page"] {
+        color: var(--gold-light, #dfc27d);
+        background: rgba(197, 161, 91, 0.14);
+    }
+
+    /* Without JavaScript the links stay in the header instead of disappearing. */
+    html:not(.js) .site-header {
+        height: auto;
+    }
+
+    html:not(.js) .site-header .header-inner {
+        height: auto;
+        min-height: 68px;
+        flex-wrap: wrap;
+    }
+
+    html:not(.js) .site-header .main-nav {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1 1 100%;
+        gap: 4px;
+        width: 100%;
+        padding: 8px 0 14px;
+    }
+
+    html:not(.js) .site-header .header-icons,
+    html:not(.js) .site-header .mobile-menu {
+        display: none;
+    }
+}
+
+@media (max-width: 380px) {
+    .site-header .logo {
+        width: 128px;
+        min-width: 0;
+        max-width: calc(100% - 60px);
+        height: auto;
+        min-height: 54px;
+    }
+
+    .site-header .logo-main {
+        font-size: 18px;
+        letter-spacing: 1px;
+    }
+
+    .site-header .logo img {
+        width: 120px;
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mobile-menu,
+    .site-header.is-open .main-nav,
+    .site-header.is-open .main-nav a {
+        transition: none;
+    }
+}

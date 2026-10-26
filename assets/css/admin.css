@@ -548,6 +548,49 @@ body.admin-dashboard {
   color: #245c45;
 }
 
+@media (max-width: 640px) {
+  body.admin-login-page {
+    padding: 16px 12px;
+    align-items: start;
+  }
+
+  .login-card {
+    padding: 28px 16px;
+  }
+
+  .dash-header,
+  .dash-main {
+    width: min(1180px, calc(100% - 20px));
+  }
+
+  .dash-header h1 {
+    font-size: 36px;
+  }
+
+  .panel {
+    padding: 16px 14px;
+  }
+
+  .panel-head {
+    flex-wrap: wrap;
+  }
+
+  .panel-head h2 {
+    font-size: 28px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-actions button,
+  .danger-button {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 860px) {
   .dash-header,
   .dash-account,

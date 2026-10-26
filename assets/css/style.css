@@ -206,7 +206,7 @@ button {
     place-items: center;
     background:
         linear-gradient(90deg, rgba(5, 19, 28, 0.78), rgba(5, 19, 28, 0.45), rgba(5, 19, 28, 0.72)),
-        url("/assets/images/cubbyhole-hero.png") center / cover no-repeat;
+        url("../images/cubbyhole-hero.png") center / cover no-repeat;
     border-bottom: 1px solid var(--gold);
 }
 
@@ -219,7 +219,8 @@ button {
 
 .hero-content {
     position: relative;
-    width: min(900px, 90%);
+    width: min(900px, calc(100% - 32px));
+    min-width: 0;
     text-align: center;
     padding: 70px 0 80px;
 }
@@ -308,24 +309,29 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 12px 20px;
 }
 
 .section-heading .line {
     height: 1px;
     background: var(--gold);
     width: 110px;
-    max-width: 15%;
+    max-width: 18%;
+    flex: 1 1 36px;
 }
 
 .section-heading h2 {
     margin: 0;
+    min-width: 0;
     font-family: var(--heading-font);
     color: var(--gold-light);
-    font-size: clamp(26px, 3vw, 37px);
+    font-size: clamp(22px, 5vw, 37px);
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    text-align: center;
+    overflow-wrap: break-word;
 }
 
 .section-subtitle {
@@ -373,6 +379,21 @@ button {
     filter: saturate(0.9);
 }
 
+.category-grid,
+.product-grid,
+.shelf-grid,
+.category-card,
+.product-card,
+.shelf-card {
+    min-width: 0;
+}
+
+.category-card h3,
+.product-info h3,
+.shelf-card span {
+    overflow-wrap: break-word;
+}
+
 .category-card h3 {
     min-height: 52px;
     margin: 0;
@@ -396,45 +417,45 @@ button {
 .glass,
 .product-1,
 .shelf-glass {
-    background-image: url("assets/images/glass.jpg");
+    background-image: url("../images/glass.jpg");
 }
 
 .ceramics,
 .product-2,
 .shelf-ceramics {
-    background-image: url("assets/images/ceramics.jpg");
+    background-image: url("../images/ceramics.jpg");
 }
 
 .brass,
 .product-3,
 .shelf-brass {
-    background-image: url("assets/images/brass.jpg");
+    background-image: url("../images/brass.jpg");
 }
 
 .collectables,
 .product-6 {
-    background-image: url("assets/images/collectables.jpg");
+    background-image: url("../images/collectables.jpg");
 }
 
 .decorative,
 .product-4 {
-    background-image: url("assets/images/decorative.jpg");
+    background-image: url("../images/decorative.jpg");
 }
 
 .curious {
-    background-image: url("assets/images/curious.jpg");
+    background-image: url("../images/curious.jpg");
 }
 
 .product-5 {
-    background-image: url("assets/images/crystal-bell.jpg");
+    background-image: url("../images/crystal-bell.jpg");
 }
 
 .product-7 {
-    background-image: url("assets/images/amber-vase.jpg");
+    background-image: url("../images/amber-vase.jpg");
 }
 
 .product-8 {
-    background-image: url("assets/images/doulton-plate.jpg");
+    background-image: url("../images/doulton-plate.jpg");
 }
 
 
@@ -562,7 +583,7 @@ button {
     text-align: center;
     background:
         linear-gradient(rgba(5, 18, 26, 0.73), rgba(5, 18, 26, 0.73)),
-        url("assets/images/shop-interior.jpg") center / cover;
+        url("../images/shop-interior.jpg") center / cover;
 }
 
 .explore-content h2 {
@@ -817,7 +838,17 @@ button {
     }
 
     .hero h1 {
-        font-size: 54px;
+        font-size: clamp(34px, 10.5vw, 54px);
+        letter-spacing: 1px;
+    }
+
+    .ornament {
+        max-width: 100%;
+        letter-spacing: 2px;
+    }
+
+    .eyebrow {
+        letter-spacing: 2px;
     }
 
     .section {
@@ -850,6 +881,7 @@ button {
 
     .shelf-grid {
         gap: 10px;
+        grid-template-columns: 1fr;
     }
 
     .shelf-card span {
@@ -875,10 +907,6 @@ button {
 
 
 @media (max-width: 480px) {
-
-    .hero h1 {
-        font-size: 45px;
-    }
 
     .hero-tagline {
         font-size: 18px;

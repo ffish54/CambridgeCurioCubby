@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="The Journal of Cambridge Curio Cubbyhole — recent finds, new stock, shop news, and the stories behind the pieces.">
     <title>Journal | Cambridge Curio Cubbyhole</title>
+    <script>document.documentElement.classList.add("js");</script>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/journal.css">
+    <link rel="stylesheet" href="assets/css/mobile-nav.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -33,6 +35,8 @@
                 <span class="logo-main">CUBBYHOLE</span>
             </a>
 
+            <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+
             <nav class="main-nav" id="site-nav" aria-label="Main navigation">
                 <a href="index.html">The Cubbyhole</a>
                 <a href="index.html#shop">Shop</a>
@@ -47,8 +51,6 @@
                 <button aria-label="Account" class="icon-button" type="button"><i class="fa-solid fa-user"></i></button>
                 <button aria-label="Basket" class="icon-button" type="button"><i class="fa-solid fa-shopping-bag"></i></button>
             </div>
-
-            <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
         </div>
     </header>
 
@@ -123,5 +125,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
     <script src="assets/js/journal.js"></script>
+    <script src="assets/js/nav.js"></script>
 </body>
 </html>
