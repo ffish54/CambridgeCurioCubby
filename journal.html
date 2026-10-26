@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Journal of Cambridge Curio Cubbyhole — recent finds, new stock, shop news, and the stories behind the pieces.">
+    <title>Journal | Cambridge Curio Cubbyhole</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/journal.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            try {
+                var slug = new URLSearchParams(window.location.search).get("slug");
+                if (slug && slug.trim()) document.documentElement.classList.add("journal-reading");
+            } catch (error) {
+                /* A broken query string should still show the list. */
+            }
+        })();
+    </script>
+</head>
+
+<body class="journal-page">
+
+    <header class="site-header">
+        <div class="header-inner">
+
+            <a href="index.html" class="logo" aria-label="Cambridge Curio Cubbyhole home">
+                <span class="logo-small">CAMBRIDGE</span>
+                <span class="logo-main">CURIO</span>
+                <span class="logo-main">CUBBYHOLE</span>
+            </a>
+
+            <nav class="main-nav" id="site-nav" aria-label="Main navigation">
+                <a href="index.html">The Cubbyhole</a>
+                <a href="index.html#shop">Shop</a>
+                <a href="our_story.html">Our Story</a>
+                <a href="journal.html" aria-current="page">Journal</a>
+                <a href="contact_us.html">Contact</a>
+            </nav>
+
+            <div class="header-icons">
+                <button aria-label="Search" class="icon-button" type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button aria-label="Favourites" class="icon-button" type="button"><i class="fa-solid fa-heart"></i></button>
+                <button aria-label="Account" class="icon-button" type="button"><i class="fa-solid fa-user"></i></button>
+                <button aria-label="Basket" class="icon-button" type="button"><i class="fa-solid fa-shopping-bag"></i></button>
+            </div>
+
+            <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="journal-hero">
+            <p class="eyebrow">THE JOURNAL</p>
+            <div class="ornament" aria-hidden="true">◆ ───── ✦ ───── ◆</div>
+            <h1 id="hero-title">Notes from the Cubbyhole</h1>
+            <p id="hero-tagline" class="journal-tagline">Recent finds, shop news, and the stories behind the pieces.</p>
+        </section>
+
+        <section id="journal-browse" class="section journal-browse" aria-labelledby="journal-heading">
+            <div class="section-heading">
+                <span class="line"></span>
+                <h2 id="journal-heading">Latest entries</h2>
+                <span class="line"></span>
+            </div>
+            <p id="journal-intro" class="section-subtitle">Published notes from the Cubbyhole, newest first.</p>
+
+            <nav id="journal-filters" class="journal-filters" aria-label="Filter by category">
+                <a href="journal.html" data-category="">All</a>
+                <a href="journal.html?category=Recent%20Finds" data-category="Recent Finds">Recent Finds</a>
+                <a href="journal.html?category=New%20Stock" data-category="New Stock">New Stock</a>
+                <a href="journal.html?category=Shop%20News" data-category="Shop News">Shop News</a>
+                <a href="journal.html?category=Stories%20Behind%20the%20Items" data-category="Stories Behind the Items">Stories Behind the Items</a>
+                <a href="journal.html?category=Upcoming%20Sales" data-category="Upcoming Sales">Upcoming Sales</a>
+            </nav>
+
+            <p id="journal-status" class="journal-status" role="status" aria-live="polite"></p>
+            <button type="button" id="journal-retry" class="ornate-button" hidden>Try again</button>
+            <ul id="journal-grid" class="journal-grid"></ul>
+            <noscript>
+                <p class="journal-status">The journal needs JavaScript to load published entries.</p>
+            </noscript>
+        </section>
+
+        <section id="journal-read" class="journal-read" aria-live="polite">
+            <p id="entry-status" class="journal-status" role="status"></p>
+            <article id="journal-entry" class="journal-sheet" hidden>
+                <p class="back-row"><a id="journal-back" class="back-link" href="journal.html">← All entries</a></p>
+                <p id="entry-kicker" class="entry-kicker"></p>
+                <h1 id="entry-title"></h1>
+                <p id="entry-date" class="entry-date"></p>
+                <p id="entry-excerpt" class="entry-excerpt" hidden></p>
+                <img id="entry-cover" class="entry-cover" alt="" hidden>
+                <div id="entry-content" class="entry-content"></div>
+            </article>
+            <div id="journal-missing" class="journal-missing" hidden>
+                <p>This entry is not on the shelf.</p>
+                <a class="ornate-button" href="journal.html">Return to the journal</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">
+            <span>CAMBRIDGE</span>
+            <strong>CURIO</strong>
+            <strong>CUBBYHOLE</strong>
+        </div>
+        <div class="footer-message">
+            <p>Every object has a story.</p>
+            <span>Come and find yours.</span>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span>Vintage &amp; preloved curiosities</span>
+        </div>
+    </footer>
+
+    <script src="https://kit.fontawesome.com/4e68a1efe8.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/journal.js"></script>
+</body>
+</html>
