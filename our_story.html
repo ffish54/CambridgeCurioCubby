@@ -9,7 +9,9 @@
     <meta name="description"
           content="Discover the story behind Cambridge Curio Cubbyhole, a family-run vintage and curiosities shop inspired by a lifetime of collecting.">
 
+    <script>document.documentElement.classList.add("js");</script>
     <link rel="stylesheet" href="assets/css/our_story.css">
+    <link rel="stylesheet" href="assets/css/mobile-nav.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,9 +43,13 @@
         </a>
 
 
+        <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
+            ☰
+        </button>
+
         <!-- NAVIGATION -->
 
-        <nav class="main-nav">
+        <nav class="main-nav" id="site-nav" aria-label="Main navigation">
 
             <a href="index.html">
                 The Cubbyhole
@@ -90,12 +96,6 @@
 
         </div>
 
-
-        <!-- MOBILE MENU -->
-
-        <button class="mobile-menu" aria-label="Open menu">
-            ☰
-        </button>
 
     </div>
 
@@ -685,6 +685,7 @@
 
 </footer>
  <script src="https://kit.fontawesome.com/4e68a1efe8.js" crossorigin="anonymous"></script>
+ <script src="assets/js/nav.js"></script>
 
 </body>
 </html>

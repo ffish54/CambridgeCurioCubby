@@ -17,8 +17,6 @@ const entryDate = document.getElementById("entry-date");
 const entryExcerpt = document.getElementById("entry-excerpt");
 const entryCover = document.getElementById("entry-cover");
 const entryContent = document.getElementById("entry-content");
-const menuButton = document.querySelector(".mobile-menu");
-const siteHeader = document.querySelector(".site-header");
 
 const route = readRoute();
 let publicClient = null;
@@ -99,15 +97,6 @@ function formatDate(value) {
     month: "long",
     year: "numeric"
   }).format(time);
-}
-
-function bindMenu() {
-  if (!menuButton || !siteHeader) return;
-  menuButton.addEventListener("click", () => {
-    const open = siteHeader.classList.toggle("is-open");
-    menuButton.setAttribute("aria-expanded", open ? "true" : "false");
-    menuButton.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-  });
 }
 
 function markFilters() {
@@ -367,7 +356,6 @@ function fillContent(container, text) {
 }
 
 function init() {
-  bindMenu();
   markFilters();
   setBrowseCopy();
 

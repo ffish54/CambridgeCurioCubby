@@ -294,7 +294,8 @@ button {
     position: relative;
     z-index: 3;
 
-    width: min(850px, 90%);
+    width: min(850px, calc(100% - 32px));
+    min-width: 0;
 
     padding: 100px 0;
 
@@ -325,6 +326,7 @@ button {
 
     line-height: 0.88;
     letter-spacing: 2px;
+    overflow-wrap: break-word;
 
     text-transform: uppercase;
 
@@ -512,11 +514,13 @@ button {
     color: var(--gold-light);
 
     font-family: var(--heading-font);
-    font-size: clamp(45px, 5vw, 68px);
+    font-size: clamp(34px, 8vw, 68px);
 
     font-weight: 500;
 
     line-height: 0.95;
+
+    overflow-wrap: break-word;
 }
 
 .story-text p:not(.section-label) {
@@ -1084,7 +1088,8 @@ button {
     }
 
     .hero-content h1 {
-        font-size: 56px;
+        font-size: clamp(40px, 12vw, 56px);
+        letter-spacing: 0.5px;
     }
 
     .hero-subtitle {
@@ -1200,9 +1205,7 @@ button {
 
 
     .hero-content h1 {
-        font-size: 46px;
-
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
     }
 
     .hero-subtitle {

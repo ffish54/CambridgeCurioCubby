@@ -11,7 +11,9 @@
     <meta name="description"
         content="Contact Cambridge Curio Cubbyhole. We are a family-run vintage and curiosities business based in Wisbech, Cambridgeshire.">
 
+    <script>document.documentElement.classList.add("js");</script>
     <link rel="stylesheet" href="assets/css/contact.css">
+    <link rel="stylesheet" href="assets/css/mobile-nav.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,9 +53,20 @@
 
 
 
+        <button
+            class="mobile-menu"
+            type="button"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="site-nav">
+
+            ☰
+
+        </button>
+
         <!-- NAVIGATION -->
 
-        <nav class="main-nav">
+        <nav class="main-nav" id="site-nav" aria-label="Main navigation">
 
             <a href="index.html">
                 The Cubbyhole
@@ -102,16 +115,6 @@
         </div>
 
 
-
-        <!-- MOBILE MENU -->
-
-        <button
-            class="mobile-menu"
-            aria-label="Open menu">
-
-            ☰
-
-        </button>
 
     </div>
 
@@ -762,6 +765,7 @@
 
 </footer>
 
+<script src="assets/js/nav.js"></script>
 
 </body>
 

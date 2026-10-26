@@ -233,7 +233,7 @@ select {
             rgba(9, 19, 30, 0.65),
             rgba(9, 19, 30, 0.72)
         ),
-        url("/assets/images/cubbyhole-hero.png");
+        url("../images/cubbyhole-hero.png");
 
     background-size: cover;
     background-position: center;
@@ -280,10 +280,20 @@ select {
 
 /* Main heading */
 
+.contact-hero .hero-content {
+    position: relative;
+    z-index: 2;
+
+    width: min(40rem, calc(100% - 32px));
+    margin: 0 auto;
+
+    padding: 56px 0 48px;
+}
+
 .contact-hero h1 {
     font-family: var(--heading-font);
 
-    font-size: clamp(65px, 9vw, 110px);
+    font-size: clamp(40px, 9vw, 110px);
 
     font-weight: 400;
 
@@ -1166,7 +1176,13 @@ select {
     }
 
     .contact-hero h1 {
-        font-size: 62px;
+        font-size: clamp(40px, 12vw, 62px);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px;
     }
 
     .contact-hero p {
@@ -1272,8 +1288,8 @@ select {
         min-height: 430px;
     }
 
-    .contact-hero h1 {
-        font-size: 52px;
+    .contact-hero .hero-content {
+        width: min(40rem, calc(100% - 24px));
     }
 
     .contact-hero .eyebrow {
@@ -1313,6 +1329,264 @@ select {
     }
 }
 
+
+/* ---------------------------------------------------------
+   MARKUP USED BY contact_us.html
+   The earlier rules target an older set of class names.
+   These match the page that is actually published.
+   --------------------------------------------------------- */
+
+.contact-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+
+    display: grid;
+    gap: 48px;
+
+    text-align: left;
+}
+
+.contact-information h2,
+.form-header h2,
+.details-heading h2 {
+    font-family: var(--heading-font);
+    font-weight: 500;
+    line-height: 1.05;
+    color: var(--navy);
+    overflow-wrap: break-word;
+}
+
+.contact-information h2 {
+    margin: 0 0 18px;
+    font-size: clamp(36px, 8vw, 64px);
+}
+
+.form-header {
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.form-header h2 {
+    margin: 0;
+    font-size: clamp(32px, 7vw, 42px);
+}
+
+.form-header h2 em,
+.contact-hero h1 em {
+    color: var(--gold-dark);
+    font-style: italic;
+}
+
+.gold-line {
+    width: 72px;
+    height: 1px;
+    margin: 18px 0 22px;
+    background: var(--gold);
+}
+
+.gold-line.centre {
+    margin-inline: auto;
+}
+
+.contact-information p,
+.contact-details p {
+    overflow-wrap: anywhere;
+}
+
+.contact-details h3 {
+    margin: 0 0 4px;
+    font-family: var(--heading-font);
+    font-size: 24px;
+    color: var(--navy);
+}
+
+.contact-details a {
+    color: var(--gold-dark);
+}
+
+.contact-form .gold-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    width: 100%;
+    margin-top: 12px;
+    padding: 16px 20px;
+
+    border: 1px solid var(--gold);
+    background: var(--navy);
+    color: var(--cream);
+
+    font-family: var(--heading-font);
+    font-size: 20px;
+    letter-spacing: 0.5px;
+
+    cursor: pointer;
+}
+
+.contact-form .gold-button:hover {
+    background: var(--gold);
+    color: var(--navy);
+}
+
+.search-section {
+    position: relative;
+    min-height: 420px;
+    display: grid;
+    place-items: center;
+    padding: 64px 7%;
+    overflow: hidden;
+    text-align: center;
+    color: var(--cream);
+    background:
+        linear-gradient(rgba(13, 27, 42, 0.72), rgba(13, 27, 42, 0.84)),
+        url("../images/cubbyhole-hero.png") center / cover no-repeat;
+}
+
+.search-background,
+.search-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.search-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.search-overlay {
+    background: rgba(13, 27, 42, 0.55);
+}
+
+.search-content {
+    position: relative;
+    z-index: 1;
+    width: min(40rem, 100%);
+}
+
+.search-content h2 {
+    margin: 8px 0 16px;
+    font-family: var(--heading-font);
+    font-size: clamp(34px, 8vw, 64px);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--cream);
+}
+
+.contact-hero .ornament,
+.search-content .ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: min(220px, 70%);
+    margin: 12px auto;
+    color: var(--gold-light);
+}
+
+.contact-hero .ornament span,
+.search-content .ornament span {
+    flex: 1;
+    height: 1px;
+    background: var(--gold);
+}
+
+.details-heading {
+    margin-bottom: 36px;
+}
+
+.details-heading h2 {
+    margin: 8px 0 0;
+    font-size: clamp(34px, 7vw, 60px);
+}
+
+.info-card {
+    padding: 28px 18px;
+    border: 1px solid var(--parchment-dark);
+    background: rgba(245, 239, 226, 0.7);
+}
+
+.info-card h3 {
+    margin: 0 0 10px;
+    font-family: var(--heading-font);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--navy);
+}
+
+.info-card p {
+    margin: 0;
+    color: #625b4e;
+    line-height: 1.7;
+}
+
+.closing-section {
+    padding: 72px 24px;
+    background: var(--navy);
+    color: var(--cream);
+    text-align: center;
+}
+
+.closing-section h2 {
+    margin: 12px auto;
+    max-width: 18em;
+    font-family: var(--heading-font);
+    font-size: clamp(32px, 8vw, 64px);
+    font-weight: 500;
+    line-height: 1.05;
+    color: var(--cream);
+}
+
+.closing-section p {
+    width: min(40rem, 100%);
+    margin: 12px auto;
+    overflow-wrap: break-word;
+}
+
+.footer-logo img {
+    width: min(160px, 70vw);
+    height: auto;
+    margin: 0 auto 12px;
+}
+
+.footer-message {
+    margin: 18px 0;
+    text-align: center;
+    font-family: var(--heading-font);
+}
+
+.footer-message p {
+    margin: 0;
+}
+
+.footer-message span {
+    color: var(--gold-light);
+}
+
+@media (min-width: 900px) {
+    .contact-grid {
+        grid-template-columns: 0.9fr 1.1fr;
+        align-items: start;
+        gap: 64px;
+    }
+}
+
+@media (max-width: 760px) {
+    .contact-section {
+        padding: 64px 6%;
+    }
+
+    .contact-form-wrapper {
+        padding: 28px 16px;
+    }
+
+    .search-section {
+        min-height: 0;
+        padding: 56px 7%;
+    }
+}
 
 /* ---------------------------------------------------------
    ACCESSIBILITY
