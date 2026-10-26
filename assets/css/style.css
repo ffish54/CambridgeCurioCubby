@@ -71,7 +71,7 @@ button {
     position: sticky;
     top: 0;
     z-index: 1000;
-    height: 82px;
+    height: 112px;
     background: rgba(4, 17, 27, 0.97);
     border-bottom: 1px solid var(--gold);
 }
@@ -94,8 +94,8 @@ button {
 
 .logo img {
     display: block;
-    width: 72px;
-    height: 72px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -686,7 +686,7 @@ button {
 
 .footer-logo img {
     display: block;
-    width: 104px;
+    width: 112px;
     height: auto;
     border-radius: 50%;
 }
@@ -761,12 +761,12 @@ button {
 @media (max-width: 760px) {
 
     .site-header {
-        height: 72px;
+        height: 84px;
     }
 
     .logo img {
-        width: 58px;
-        height: 58px;
+        width: 72px;
+        height: 72px;
     }
 
     .main-nav,
