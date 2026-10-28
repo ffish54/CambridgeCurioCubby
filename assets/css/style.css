@@ -1087,4 +1087,13 @@ button {
     .section-heading .line {
         width: 35px;
     }
+
+    .home-news .section-heading {
+        flex-wrap: nowrap;
+        gap: 10px;
+    }
+
+    .home-news .section-heading h2 {
+        font-size: 22px;
+    }
 }
