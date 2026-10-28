@@ -1,6 +1,6 @@
 /* =========================================================
    CAMBRIDGE CURIO CUBBYHOLE
-   Front Page — HTML + CSS only
+   Front page
    ========================================================= */
 
 :root {
@@ -630,6 +630,189 @@ button {
 
 
 /* =========================================================
+   FROM THE JOURNAL (home)
+   ========================================================= */
+
+.home-news {
+    padding-top: 58px;
+    padding-bottom: 54px;
+    border-bottom: 1px solid var(--gold);
+}
+
+.home-news .section-subtitle {
+    margin-bottom: 22px;
+}
+
+.home-news-status {
+    margin: 0 0 22px;
+    text-align: center;
+    font-family: var(--heading-font);
+    font-size: 18px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.home-news-status:empty {
+    display: none;
+    margin: 0;
+}
+
+.home-news-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+}
+
+.home-news-grid:has(> :nth-child(2):last-child) {
+    max-width: 920px;
+    margin-inline: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-news-grid:has(> :nth-child(1):last-child) {
+    max-width: 440px;
+    margin-inline: auto;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.home-news-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    background:
+        linear-gradient(180deg, rgba(245, 239, 226, 0.98), rgba(233, 217, 181, 0.98));
+    color: #18120a;
+    border: 1px solid var(--gold);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.home-news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.35);
+    color: #18120a;
+}
+
+.home-news-card:focus-visible {
+    outline: 2px solid var(--gold-light);
+    outline-offset: 3px;
+}
+
+.home-news-cover,
+.home-news-placeholder {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-bottom: 1px solid #806126;
+}
+
+.home-news-cover {
+    object-fit: cover;
+    background: #0b2030;
+}
+
+.home-news-placeholder {
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at center, rgba(224, 183, 101, 0.2), transparent 62%),
+        #0b2030;
+    color: var(--gold-light);
+    font-family: var(--heading-font);
+    font-size: 18px;
+    letter-spacing: 3px;
+}
+
+.home-news-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    padding: 14px 16px 16px;
+}
+
+.home-news-kicker {
+    margin: 0 0 6px;
+    font-family: var(--heading-font);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #7a6233;
+    overflow-wrap: anywhere;
+}
+
+.home-news-card h3 {
+    margin: 0;
+    font-family: var(--heading-font);
+    font-size: clamp(24px, 2vw, 30px);
+    font-weight: 600;
+    line-height: 1.08;
+    color: #0d1b2a;
+    overflow-wrap: anywhere;
+}
+
+.home-news-date {
+    margin: 8px 0 0;
+    font-family: var(--heading-font);
+    font-size: 16px;
+    font-style: italic;
+    color: #6b5c45;
+}
+
+.home-news-excerpt {
+    margin: 10px 0 0;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #3c3226;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.home-news-read {
+    margin-top: auto;
+    padding-top: 14px;
+    font-family: var(--heading-font);
+    font-size: 16px;
+    letter-spacing: 0.3px;
+    color: #6d5420;
+}
+
+.home-news-more {
+    margin: 28px 0 0;
+    text-align: center;
+}
+
+.home-news-retry {
+    margin: 0 22px 0 0;
+    padding: 0 0 3px;
+    border: 0;
+    border-bottom: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold-light);
+    font-family: var(--heading-font);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.home-news-retry:hover,
+.home-news-retry:focus-visible {
+    color: var(--cream);
+}
+
+.home-news-retry:focus-visible {
+    outline: 2px solid var(--gold-light);
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
    STORY STRIP
    ========================================================= */
 
@@ -758,6 +941,19 @@ button {
 }
 
 
+@media (max-width: 980px) {
+
+    .home-news-grid,
+    .home-news-grid:has(> :nth-child(2):last-child) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .home-news-grid > :nth-child(n + 3) {
+        display: none;
+    }
+}
+
+
 @media (max-width: 760px) {
 
     .site-header {
@@ -874,6 +1070,12 @@ button {
         grid-template-columns: 1fr;
     }
 
+    .home-news-grid,
+    .home-news-grid:has(> :nth-child(2):last-child),
+    .home-news-grid:has(> :nth-child(1):last-child) {
+        grid-template-columns: 1fr;
+    }
+
     .product-image {
         aspect-ratio: 1 / 0.82;
     }
@@ -884,5 +1086,14 @@ button {
 
     .section-heading .line {
         width: 35px;
+    }
+
+    .home-news .section-heading {
+        flex-wrap: nowrap;
+        gap: 10px;
+    }
+
+    .home-news .section-heading h2 {
+        font-size: 22px;
     }
 }
