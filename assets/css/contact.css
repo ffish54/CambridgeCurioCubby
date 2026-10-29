@@ -200,6 +200,14 @@ select {
     transform: translateY(-2px);
 }
 
+@media (min-width: 861px) {
+    .site-header .header-inner::after {
+        content: "";
+        width: 100px;
+        flex: 0 0 100px;
+    }
+}
+
 
 /* Mobile menu */
 

@@ -206,6 +206,14 @@ button {
     transform: translateY(-2px);
 }
 
+@media (min-width: 861px) {
+    .site-header .header-inner::after {
+        content: "";
+        width: 104px;
+        flex: 0 0 104px;
+    }
+}
+
 
 /* ---------- MOBILE MENU ---------- */
 

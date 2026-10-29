@@ -1,0 +1,413 @@
+/* Public shop. Shares the header from style.css and the journal's palette. */
+
+body.shop-page {
+    --navy: #0d1b2a;
+    --navy-light: #13283a;
+    --navy-card: #122433;
+    --gold: #c5a15b;
+    --gold-light: #d4b56e;
+    --cream: #f5efe2;
+    --paper: #f5efe2;
+    --text: #f5efe2;
+    --muted: #d9cbb3;
+    --border: rgba(197, 161, 91, 0.85);
+    background:
+        radial-gradient(900px 420px at 50% -10%, rgba(197, 161, 91, 0.16), transparent 55%),
+        var(--navy);
+    color: var(--cream);
+}
+
+.shop-page [hidden] {
+    display: none !important;
+}
+
+.shop-page :focus-visible {
+    outline: 2px solid var(--gold-light);
+    outline-offset: 3px;
+}
+
+.shop-page .main-nav a[aria-current="page"] {
+    color: var(--gold-light);
+}
+
+.shop-page .main-nav a[aria-current="page"]::after {
+    left: 0;
+    right: 0;
+}
+
+.shop-hero {
+    position: relative;
+    min-height: 340px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+    padding: 54px 6% 48px;
+    border-bottom: 1px solid var(--gold);
+    background:
+        linear-gradient(90deg, rgba(13, 27, 42, 0.86), rgba(13, 27, 42, 0.52), rgba(13, 27, 42, 0.86)),
+        url("../images/cubbyhole-hero.png") center / cover no-repeat;
+}
+
+.shop-hero h1 {
+    margin: 8px 0 0;
+    font-family: var(--heading-font);
+    font-size: clamp(46px, 7vw, 84px);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: 1px;
+    color: var(--cream);
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.55);
+}
+
+.shop-tagline {
+    max-width: 38rem;
+    margin: 16px auto 0;
+    font-family: var(--heading-font);
+    font-size: clamp(18px, 2vw, 26px);
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--cream);
+}
+
+html.shop-reading .shop-hero {
+    min-height: 0;
+    padding: 28px 6% 18px;
+}
+
+html.shop-reading .shop-hero h1,
+html.shop-reading .shop-tagline,
+html.shop-reading #shop-browse {
+    display: none;
+}
+
+.shop-browse {
+    padding-top: 48px;
+    padding-bottom: 72px;
+}
+
+.shop-search {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: min(640px, 100%);
+    margin: 8px auto 22px;
+}
+
+.shop-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--gold);
+    border-radius: 0;
+    background: rgba(3, 17, 27, 0.55);
+    color: var(--cream);
+}
+
+.shop-search input::placeholder {
+    color: #cfc7b7;
+}
+
+.shop-search button {
+    border: 1px solid var(--gold-light);
+    background: transparent;
+    color: var(--cream);
+    padding: 10px 16px;
+    font-family: var(--heading-font);
+    font-size: 16px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.shop-search button:hover {
+    background: var(--gold);
+    color: var(--navy);
+}
+
+.shop-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 6px 0 26px;
+}
+
+.shop-filters a {
+    border: 1px solid rgba(197, 161, 91, 0.85);
+    padding: 7px 12px;
+    font-family: var(--heading-font);
+    font-size: 17px;
+    line-height: 1.2;
+    color: var(--cream);
+    background: rgba(13, 27, 42, 0.35);
+}
+
+.shop-filters a:hover,
+.shop-filters a[aria-current="true"],
+.shop-filters a[aria-pressed="true"] {
+    background: var(--gold);
+    color: var(--navy);
+}
+
+.shop-status {
+    min-height: 1.4em;
+    margin: 0 0 18px;
+    text-align: center;
+    font-family: var(--heading-font);
+    font-size: 20px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.shop-page .product-grid {
+    margin-top: 8px;
+}
+
+.shop-page .product-card.is-sold .product-image img {
+    filter: grayscale(0.4);
+}
+
+.shop-page .product-card.is-reserved .product-badge {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+}
+
+.shop-read {
+    display: none;
+}
+
+html.shop-reading .shop-read {
+    display: block;
+}
+
+.piece-sheet {
+    width: min(1100px, 92%);
+    margin: 28px auto 80px;
+}
+
+.back-row {
+    margin: 0 0 14px;
+}
+
+.back-link {
+    font-family: var(--heading-font);
+    font-size: 18px;
+    color: var(--gold-light);
+}
+
+.back-link:hover {
+    color: var(--cream);
+}
+
+.piece-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.9fr);
+    gap: 28px;
+    padding: clamp(16px, 3vw, 32px);
+    background:
+        linear-gradient(180deg, rgba(245, 239, 226, 0.99), rgba(236, 224, 196, 0.99));
+    color: #241c14;
+    border: 1px solid var(--gold);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.piece-frame {
+    min-height: 220px;
+}
+
+.piece-photo {
+    display: block;
+    width: 100%;
+    max-height: 70vh;
+    height: auto;
+    object-fit: contain;
+    background:
+        radial-gradient(circle at center, rgba(197, 161, 91, 0.18), transparent 62%),
+        #122433;
+    border: 1px solid rgba(197, 161, 91, 0.8);
+}
+
+.piece-frame .product-fallback {
+    aspect-ratio: 1;
+    height: auto;
+    border: 1px solid rgba(197, 161, 91, 0.8);
+}
+
+.piece-photo-caption {
+    min-height: 1.4em;
+    margin: 8px 0 0;
+    text-align: center;
+    font-family: var(--heading-font);
+    font-size: 16px;
+    font-style: italic;
+    color: #6b5c45;
+}
+
+.piece-photo-caption:empty {
+    display: none;
+}
+
+.piece-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.piece-thumbs button {
+    display: block;
+    padding: 0;
+    border: 1px solid transparent;
+    background: none;
+    cursor: pointer;
+}
+
+.piece-thumbs button[aria-current="true"] {
+    border-color: var(--gold);
+}
+
+.piece-thumbs img {
+    display: block;
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+}
+
+.piece-kicker {
+    margin: 0 0 8px;
+    font-family: var(--heading-font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #7a6233;
+}
+
+.piece-copy h1 {
+    margin: 0;
+    font-family: var(--heading-font);
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 500;
+    line-height: 0.98;
+    color: #0d1b2a;
+    overflow-wrap: anywhere;
+}
+
+.piece-facts {
+    display: grid;
+    grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 18px 0 8px;
+}
+
+.piece-facts div {
+    display: contents;
+}
+
+.piece-facts dt {
+    margin: 0;
+    font-family: var(--heading-font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7a6233;
+}
+
+.piece-facts dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.piece-note {
+    margin: 14px 0 0;
+    font-family: var(--heading-font);
+    font-size: 18px;
+    font-style: italic;
+    line-height: 1.4;
+    color: #3c3226;
+}
+
+.piece-enquire {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 12px 18px;
+    border: 1px solid #0d1b2a;
+    background: #0d1b2a;
+    color: #f5efe2;
+    font-family: var(--heading-font);
+    font-size: 16px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.piece-enquire:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #0d1b2a;
+}
+
+.piece-story-heading {
+    margin: 28px 0 10px;
+    font-family: var(--heading-font);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #0d1b2a;
+}
+
+.piece-story p {
+    margin: 0 0 1.05em;
+    font-size: 16.5px;
+    line-height: 1.85;
+}
+
+.shop-missing {
+    width: min(640px, 92%);
+    margin: 48px auto 80px;
+    text-align: center;
+}
+
+.shop-missing p {
+    margin: 0 0 8px;
+    font-family: var(--heading-font);
+    font-size: clamp(28px, 4vw, 40px);
+    color: var(--cream);
+}
+
+.shop-page .ornate-button {
+    cursor: pointer;
+}
+
+@media (max-width: 800px) {
+    .shop-hero {
+        min-height: 280px;
+        padding: 42px 6% 36px;
+    }
+
+    .piece-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .shop-search {
+        flex-direction: column;
+    }
+
+    .piece-thumbs img {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .shop-page .product-card,
+    .shop-page .product-card:hover {
+        transition: none;
+        transform: none;
+    }
+}
