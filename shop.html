@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+      (function () {
+        var hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+        var queryParams = new URLSearchParams(window.location.search);
+        var type = queryParams.get("type") || hashParams.get("type");
+        if (type !== "recovery") return;
+        window.location.replace("reset-password.html" + window.location.search + window.location.hash);
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The shop at Cambridge Curio Cubbyhole — one-of-a-kind glass, ceramics, brass, collectables, and curious things from Wisbech.">
+    <title>Shop | Cambridge Curio Cubbyhole</title>
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <link rel="stylesheet" href="assets/css/mobile-nav.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            try {
+                var item = new URLSearchParams(window.location.search).get("item");
+                if (item && item.trim()) document.documentElement.classList.add("shop-reading");
+            } catch (error) {
+                /* A broken query string should still show the shelf. */
+            }
+        })();
+    </script>
+</head>
+
+<body class="shop-page">
+
+    <header class="site-header">
+        <div class="header-inner">
+
+            <a href="index.html" class="logo">
+                <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+            </a>
+
+            <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+
+            <nav class="main-nav" id="site-nav" aria-label="Main navigation">
+                <a href="index.html">The Cubbyhole</a>
+                <a href="shop.html" aria-current="page">Shop</a>
+                <a href="our_story.html">Our Story</a>
+                <a href="journal.html">Journal</a>
+                <a href="contact_us.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="shop-hero">
+            <p class="eyebrow">THE SHOP</p>
+            <div class="ornament" aria-hidden="true">◆ ───── ✦ ───── ◆</div>
+            <h1 id="shop-hero-title">The Shelf</h1>
+            <p id="shop-hero-tagline" class="shop-tagline">One-of-a-kind glass, ceramics, brass, and curious things from Wisbech.</p>
+        </section>
+
+        <section id="shop-browse" class="section shop-browse" aria-labelledby="shop-heading">
+            <div class="section-heading">
+                <span class="line"></span>
+                <h2 id="shop-heading">On the shelf</h2>
+                <span class="line"></span>
+            </div>
+            <p id="shop-intro" class="section-subtitle">Available and reserved pieces first, sold pieces after.</p>
+
+            <form id="shop-search" class="shop-search" action="shop.html" method="get" role="search">
+                <label for="shop-q" class="visually-hidden">Search the shelf</label>
+                <input id="shop-q" name="q" type="search" placeholder="Search the shelf" maxlength="120">
+                <button type="submit">Search</button>
+            </form>
+
+            <nav id="shop-filters" class="shop-filters" aria-label="Filter the shelf">
+                <a href="shop.html" data-category="">All</a>
+                <a href="shop.html?category=Glass%20%26%20Crystal" data-category="Glass &amp; Crystal">Glass &amp; Crystal</a>
+                <a href="shop.html?category=Ceramics%20%26%20Pottery" data-category="Ceramics &amp; Pottery">Ceramics &amp; Pottery</a>
+                <a href="shop.html?category=Brass%20%26%20Metalwork" data-category="Brass &amp; Metalwork">Brass &amp; Metalwork</a>
+                <a href="shop.html?category=Collectables" data-category="Collectables">Collectables</a>
+                <a href="shop.html?category=Decorative" data-category="Decorative">Decorative</a>
+                <a href="shop.html?category=Curious%20Things" data-category="Curious Things">Curious Things</a>
+                <a id="shop-sold-toggle" href="shop.html?sold=hidden" aria-pressed="false">Hide sold</a>
+            </nav>
+
+            <p id="shop-status" class="shop-status" role="status" aria-live="polite"></p>
+            <button type="button" id="shop-retry" class="ornate-button" hidden>Try again</button>
+            <ul id="shop-grid" class="product-grid"></ul>
+            <noscript>
+                <p class="shop-status">The shelf needs JavaScript to load pieces from the cabinet.</p>
+            </noscript>
+        </section>
+
+        <section id="shop-read" class="shop-read" aria-live="polite">
+            <p id="piece-status" class="shop-status" role="status"></p>
+            <article id="shop-piece" class="piece-sheet" hidden>
+                <p class="back-row"><a id="shop-back" class="back-link" href="shop.html">← Back to the shelf</a></p>
+                <div class="piece-layout">
+                    <div class="piece-gallery">
+                        <div id="piece-frame" class="piece-frame"></div>
+                        <ul id="piece-thumbs" class="piece-thumbs"></ul>
+                    </div>
+                    <div class="piece-copy">
+                        <p id="piece-kicker" class="piece-kicker"></p>
+                        <h1 id="piece-title"></h1>
+                        <dl id="piece-facts" class="piece-facts"></dl>
+                        <p id="piece-note" class="piece-note" hidden></p>
+                        <a id="piece-enquire" class="piece-enquire" href="mailto:curiocubbyhole@gmail.com">Enquire about this piece</a>
+                        <h2 class="piece-story-heading">About this piece</h2>
+                        <div id="piece-story" class="piece-story"></div>
+                    </div>
+                </div>
+            </article>
+            <div id="shop-missing" class="shop-missing" hidden>
+                <p>This piece is not on the shelf.</p>
+                <a class="ornate-button" href="shop.html">Return to the shop</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">
+            <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+        </div>
+        <div class="footer-message">
+            <p>Every object has a story.</p>
+            <span>Come and find yours.</span>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span>Vintage &amp; preloved curiosities</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/shop-catalog.js"></script>
+    <script src="assets/js/shop.js"></script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>

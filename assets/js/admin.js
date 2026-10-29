@@ -14,7 +14,7 @@ const signOutButton = document.getElementById("sign-out");
 const newPostButton = document.getElementById("new-post");
 const postList = document.getElementById("post-list");
 const listMessage = document.getElementById("list-message");
-const filterButtons = document.querySelectorAll(".filter");
+const filterButtons = document.querySelectorAll("#journal-desk .filter");
 const editorPanel = document.getElementById("editor-panel");
 const editorHeading = document.getElementById("editor-heading");
 const publishedNote = document.getElementById("published-note");
@@ -852,9 +852,11 @@ function focusEditor() {
 }
 
 function setBusy(isBusy) {
-  app.querySelectorAll("button, #cover-file").forEach((control) => {
+  const scope = document.getElementById("journal-desk") || app;
+  scope.querySelectorAll("button, #cover-file").forEach((control) => {
     control.disabled = isBusy;
   });
+  if (signOutButton) signOutButton.disabled = isBusy;
 }
 
 function setListMessage(text, kind) {
@@ -1031,6 +1033,10 @@ function friendlyError(error) {
   }
   return message;
 }
+
+window.curioJournalIsDirty = function () {
+  return isDirty();
+};
 
 init().catch(() => {
   gateMessage.textContent = "The cabinet could not open. Reload the page.";

@@ -500,6 +500,7 @@ body.admin-dashboard {
 
 .editor-panel input[type="text"],
 .editor-panel input[type="url"],
+.editor-panel input[type="number"],
 .editor-panel textarea,
 .editor-panel select {
   width: 100%;
@@ -618,7 +619,8 @@ body.admin-dashboard {
   }
 
   .dash-header,
-  .dash-main {
+  .dash-main,
+  .desk-tabs {
     width: min(1180px, calc(100% - 20px));
   }
 
@@ -648,6 +650,113 @@ body.admin-dashboard {
     width: 100%;
     margin-left: 0;
   }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.desk-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 18px auto 0;
+}
+
+.desk-tab {
+  padding: 10px 16px;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--cream);
+  cursor: pointer;
+}
+
+.desk-tab.is-active {
+  background: var(--cream);
+  color: var(--navy);
+}
+
+.pill-available {
+  border-color: #245c45;
+  background: #245c45;
+  color: #fffdf7;
+}
+
+.pill-reserved {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.pill-sold {
+  border-color: #7a3030;
+  color: #7a3030;
+}
+
+.mini-status {
+  display: inline-flex;
+  margin: 0;
+}
+
+.status-select {
+  padding: 6px 8px;
+  border: 1px solid #9a8660;
+  background: #fffdf7;
+  color: var(--navy);
+  font: inherit;
+  font-size: 14px;
+}
+
+.mini-link,
+.product-view {
+  color: #80652f;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+.image-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.image-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #e0d3b8;
+  background: #fffdf7;
+}
+
+.image-row.is-cover {
+  border-color: var(--gold);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.image-row img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid #c5b693;
+}
+
+.form-actions .product-view {
+  align-self: center;
 }
 
 @media (max-width: 860px) {

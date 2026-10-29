@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Journal | Curio Cubbyhole</title>
+  <title>The Curio Cabinet | Curio Cubbyhole</title>
   <link rel="stylesheet" href="assets/css/admin.css">
 </head>
 <body class="admin-dashboard">
@@ -20,18 +20,23 @@
       <div class="dash-brand">
         <img class="brand-mark" src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
         <h1>The Curio Cabinet</h1>
-        <p class="dash-subtitle">Journal desk</p>
+        <p id="desk-subtitle" class="dash-subtitle">Journal desk</p>
       </div>
       <div class="dash-account">
         <p id="account-label" class="account-label"></p>
         <div class="dash-account-actions">
-          <a class="header-link" href="index.html">View the shop</a>
+          <a class="header-link" href="shop.html">View the shop</a>
           <button type="button" id="sign-out" class="ghost-button">Sign out</button>
         </div>
       </div>
     </header>
 
-    <main class="dash-main">
+    <nav class="desk-tabs" role="tablist" aria-label="Cabinet desks">
+      <button type="button" class="desk-tab is-active" id="tab-journal" role="tab" aria-selected="true" aria-controls="journal-desk">Journal</button>
+      <button type="button" class="desk-tab" id="tab-shop" role="tab" aria-selected="false" aria-controls="shop-desk">Shop</button>
+    </nav>
+
+    <main class="dash-main" id="journal-desk" role="tabpanel" aria-labelledby="tab-journal">
       <section class="panel list-panel" aria-labelledby="posts-heading">
         <div class="panel-head">
           <h2 id="posts-heading">Entries</h2>
@@ -116,10 +121,114 @@
         </form>
       </section>
     </main>
+
+    <main class="dash-main is-hidden" id="shop-desk" role="tabpanel" aria-labelledby="tab-shop" hidden>
+      <section class="panel list-panel" aria-labelledby="products-heading">
+        <div class="panel-head">
+          <h2 id="products-heading">Pieces</h2>
+          <button type="button" id="new-product" class="solid-button">New piece</button>
+        </div>
+
+        <div class="filters" role="tablist" aria-label="Filter pieces">
+          <button type="button" class="filter is-active" data-product-filter="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="filter" data-product-filter="available" role="tab" aria-selected="false">Available</button>
+          <button type="button" class="filter" data-product-filter="reserved" role="tab" aria-selected="false">Reserved</button>
+          <button type="button" class="filter" data-product-filter="sold" role="tab" aria-selected="false">Sold</button>
+          <button type="button" class="filter" data-product-filter="draft" role="tab" aria-selected="false">Drafts</button>
+        </div>
+
+        <p id="product-list-message" class="status-message" role="status" aria-live="polite"></p>
+        <ul id="product-list" class="post-list"></ul>
+      </section>
+
+      <section class="panel editor-panel" id="product-editor-panel" aria-labelledby="product-editor-heading">
+        <div class="panel-head">
+          <h2 id="product-editor-heading" tabindex="-1">New piece</h2>
+        </div>
+
+        <form id="product-form" autocomplete="off">
+          <label for="product-title">Title</label>
+          <input id="product-title" name="title" type="text" required maxlength="200">
+
+          <div class="label-row">
+            <label for="product-slug">Slug</label>
+            <button type="button" id="product-slug-from-title" class="link-button">Match title</button>
+          </div>
+          <input id="product-slug" name="slug" type="text" required maxlength="80" spellcheck="false" autocapitalize="off">
+          <p class="hint">Filled from the title until you edit it. Used as the shop address.</p>
+
+          <label for="product-category">Category</label>
+          <select id="product-category" name="category" required>
+            <option value="Glass &amp; Crystal">Glass &amp; Crystal</option>
+            <option value="Ceramics &amp; Pottery">Ceramics &amp; Pottery</option>
+            <option value="Brass &amp; Metalwork">Brass &amp; Metalwork</option>
+            <option value="Collectables">Collectables</option>
+            <option value="Decorative">Decorative</option>
+            <option value="Curious Things">Curious Things</option>
+          </select>
+
+          <label for="product-price">Price (GBP)</label>
+          <input id="product-price" name="price" type="text" inputmode="decimal" required placeholder="45.00" maxlength="12" autocomplete="off">
+
+          <label for="product-condition">Condition <span class="optional">(optional)</span></label>
+          <input id="product-condition" name="condition" type="text" maxlength="160" placeholder="Very good, a small chip to the foot">
+
+          <label for="product-era">Era <span class="optional">(optional)</span></label>
+          <input id="product-era" name="era" type="text" maxlength="160" placeholder="c. 1960s">
+
+          <label for="product-maker">Maker <span class="optional">(optional)</span></label>
+          <input id="product-maker" name="maker" type="text" maxlength="160" placeholder="Murano, unmarked">
+
+          <label for="product-dimensions">Dimensions <span class="optional">(optional)</span></label>
+          <input id="product-dimensions" name="dimensions" type="text" maxlength="200" placeholder="H 18 cm · W 10 cm">
+
+          <label for="product-description">Description <span class="optional">(optional)</span></label>
+          <textarea id="product-description" name="description" rows="8" maxlength="8000"></textarea>
+          <p class="hint">Line breaks are saved. Say what it is, its condition, and anything a buyer should know.</p>
+
+          <label for="product-files">Photographs <span class="optional">(optional)</span></label>
+          <div class="cover-tools image-tools">
+            <input id="product-files" type="file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" multiple aria-describedby="image-hint">
+            <button type="button" id="upload-images" class="line-button">Upload</button>
+            <button type="button" id="clear-product-files" class="link-button">Clear files</button>
+          </div>
+          <p class="hint" id="image-hint">JPEG, PNG, WebP, or GIF, up to 5 MB each, 12 photographs. Upload stores them. Then reorder, choose a cover, and save the piece.</p>
+          <p id="image-message" class="status-message" role="status" aria-live="polite"></p>
+          <ul id="image-list" class="image-list"></ul>
+
+          <label class="check" for="product-featured">
+            <input id="product-featured" name="featured" type="checkbox">
+            Feature this piece
+          </label>
+
+          <label for="product-sort">Shelf order <span class="optional">(optional)</span></label>
+          <input id="product-sort" name="sort_order" type="text" inputmode="numeric" value="0" maxlength="5">
+          <p class="hint">Lower numbers sit nearer the front within a status. Leave at 0 to order by date.</p>
+
+          <label for="product-status">Status</label>
+          <select id="product-status" name="status">
+            <option value="draft" selected>Draft</option>
+            <option value="available">Available</option>
+            <option value="reserved">Reserved</option>
+            <option value="sold">Sold</option>
+          </select>
+          <p class="hint">Drafts stay off the public shop. Available, reserved, and sold pieces appear on the shelf. Sold pieces sit last.</p>
+
+          <div class="form-actions">
+            <button type="button" id="save-product" class="solid-button">Save piece</button>
+            <a id="product-view" class="link-button product-view" href="shop.html" hidden>View on the shop</a>
+            <button type="button" id="delete-product" class="danger-button" hidden>Delete</button>
+          </div>
+          <p id="product-form-message" class="status-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/shop-catalog.js"></script>
   <script src="assets/js/admin.js"></script>
+  <script src="assets/js/admin-shop.js"></script>
 </body>
 </html>
