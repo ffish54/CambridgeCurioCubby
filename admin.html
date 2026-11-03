@@ -167,8 +167,22 @@
             <option value="Curious Things">Curious Things</option>
           </select>
 
-          <label for="product-price">Price (GBP)</label>
-          <input id="product-price" name="price" type="text" inputmode="decimal" required placeholder="45.00" maxlength="12" autocomplete="off">
+          <fieldset class="price-fields">
+            <legend>Prices</legend>
+            <p class="hint" id="price-fields-hint">At least one price is required. Leave a box blank if that option is not offered. Use pounds and pence, such as 45 or 45.00.</p>
+
+            <label for="product-price-delivered">Price with delivery (£) <span class="optional">(optional)</span></label>
+            <input id="product-price-delivered" name="price_delivered" type="text" inputmode="decimal" placeholder="45.00" maxlength="12" autocomplete="off" aria-describedby="price-delivered-hint">
+            <p class="hint" id="price-delivered-hint">The full price, including UK delivery by the shop.</p>
+
+            <label for="product-price-item">Item only, own courier (£) <span class="optional">(optional)</span></label>
+            <input id="product-price-item" name="price_item" type="text" inputmode="decimal" placeholder="38.00" maxlength="12" autocomplete="off" aria-describedby="price-item-hint">
+            <p class="hint" id="price-item-hint">The cost of the piece for a buyer who arranges their own courier. The shop asks them to contact you so the courier can collect.</p>
+
+            <label for="product-price-collection">Collection price (£) <span class="optional">(optional)</span></label>
+            <input id="product-price-collection" name="price_collection" type="text" inputmode="decimal" placeholder="32.00" maxlength="12" autocomplete="off" aria-describedby="price-collection-hint">
+            <p class="hint" id="price-collection-hint">The price to collect in person from Wisbech. Collection is by arrangement.</p>
+          </fieldset>
 
           <label for="product-condition">Condition <span class="optional">(optional)</span></label>
           <input id="product-condition" name="condition" type="text" maxlength="160" placeholder="Very good, a small chip to the foot">

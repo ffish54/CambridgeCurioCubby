@@ -577,6 +577,25 @@ body.admin-dashboard {
   font-style: italic;
 }
 
+.price-fields {
+  min-width: 0;
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 4px 12px 10px;
+  border: 1px solid #c5b693;
+  background: #fffdf7;
+}
+
+.price-fields legend {
+  padding: 0 6px;
+  color: var(--navy);
+  font-size: 15px;
+}
+
+.editor-panel .price-fields label {
+  margin-top: 12px;
+}
+
 .cover-preview {
   display: block;
   max-width: 100%;

@@ -183,10 +183,13 @@
     title.textContent = product.title || "Untitled piece";
     info.append(title);
 
-    var price = document.createElement("p");
-    price.className = "price";
-    price.textContent = CurioShop.formatPrice(product.price);
-    info.append(price);
+    var headline = CurioShop.headlinePrice(product);
+    if (headline) {
+      var price = document.createElement("p");
+      price.className = "price";
+      price.textContent = headline;
+      info.append(price);
+    }
 
     link.append(frame, info);
     item.append(link);
@@ -203,6 +206,34 @@
     return "The shelf is quiet just now. New pieces will appear here once they are added.";
   }
 
+  function renderPrices(product) {
+    var list = document.getElementById("piece-prices");
+    if (!list) return;
+    list.replaceChildren();
+    CurioShop.offeredPrices(product).forEach(function (option) {
+      var item = document.createElement("li");
+      var line = document.createElement("p");
+      line.className = "piece-price-line";
+      line.textContent = option.label + " " + CurioShop.formatPrice(option.amount);
+      item.append(line);
+      if (option.note) {
+        var note = document.createElement("p");
+        note.className = "piece-price-note";
+        note.textContent = option.note;
+        item.append(note);
+      }
+      list.append(item);
+    });
+  }
+
+  async function selectColumns(build) {
+    var result = await build(CurioShop.columnsWithPrices(LIST_COLUMNS));
+    if (result && result.error && CurioShop.missingPriceColumns(result.error)) {
+      result = await build(LIST_COLUMNS);
+    }
+    return result;
+  }
+
   async function loadList() {
     setBrowseCopy();
     if (searchInput) searchInput.value = route.q;
@@ -215,11 +246,13 @@
     }
 
     try {
-      var result = await publicClient
-        .from("products")
-        .select(LIST_COLUMNS)
-        .in("status", CurioShop.PUBLIC_STATUSES)
-        .order("created_at", { ascending: false });
+      var result = await selectColumns(function (columns) {
+        return publicClient
+          .from("products")
+          .select(columns)
+          .in("status", CurioShop.PUBLIC_STATUSES)
+          .order("created_at", { ascending: false });
+      });
 
       if (result.error) throw result.error;
 
@@ -256,6 +289,8 @@
     entry.hidden = true;
     missing.hidden = false;
     entryStatus.textContent = "";
+    var prices = document.getElementById("piece-prices");
+    if (prices) prices.replaceChildren();
     document.title = "Piece not found | Shop | Cambridge Curio Cubbyhole";
   }
 
@@ -387,9 +422,10 @@
     if (product.category) bits.push(product.category);
     document.getElementById("piece-kicker").textContent = bits.join(" · ");
 
+    renderPrices(product);
+
     var facts = document.getElementById("piece-facts");
     facts.replaceChildren();
-    addFact(facts, "Price", CurioShop.formatPrice(product.price));
     addFact(facts, "Status", CurioShop.statusLabel(product.status));
     addFact(facts, "Category", product.category);
     addFact(facts, "Condition", product.condition);
@@ -430,12 +466,14 @@
     }
 
     try {
-      var result = await publicClient
-        .from("products")
-        .select(LIST_COLUMNS)
-        .eq("slug", slug)
-        .in("status", CurioShop.PUBLIC_STATUSES)
-        .maybeSingle();
+      var result = await selectColumns(function (columns) {
+        return publicClient
+          .from("products")
+          .select(columns)
+          .eq("slug", slug)
+          .in("status", CurioShop.PUBLIC_STATUSES)
+          .maybeSingle();
+      });
 
       if (result.error) throw result.error;
       if (!CurioShop.isPublicProduct(result.data) || result.data.slug !== slug) {
