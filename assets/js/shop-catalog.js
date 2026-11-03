@@ -294,6 +294,131 @@
     return { ok: false, message: "Choose a JPEG, PNG, WebP, or GIF. Other file types are not accepted." };
   }
 
+  var PRICE_OPTIONS = [
+    {
+      key: "delivered",
+      column: "price_delivered",
+      label: "Delivered to your door",
+      cardLabel: "Delivered",
+      adminLabel: "Delivered",
+      note: ""
+    },
+    {
+      key: "item",
+      column: "price_item",
+      label: "Item only, arrange your own courier",
+      cardLabel: "Item only",
+      adminLabel: "Item only",
+      note: "Contact us to arrange collection by your courier"
+    },
+    {
+      key: "collection",
+      column: "price_collection",
+      label: "Collect from Wisbech",
+      cardLabel: "Collection",
+      adminLabel: "Collection",
+      note: "Collection by arrangement"
+    }
+  ];
+
+  function amountOf(value) {
+    if (value == null || value === "") return null;
+    if (typeof value === "number") {
+      if (!Number.isFinite(value) || value < 0 || value > 99999999.99) return null;
+      return Math.round(value * 100) / 100;
+    }
+    var text = String(value).trim().replace(/£/g, "").replace(/,/g, "").replace(/\s/g, "");
+    if (!/^\d+(\.\d+)?$/.test(text)) return null;
+    var number = Number(text);
+    if (!Number.isFinite(number) || number < 0 || number > 99999999.99) return null;
+    return Math.round(number * 100) / 100;
+  }
+
+  function offeredPrices(product) {
+    var list = [];
+    if (!product) return list;
+    PRICE_OPTIONS.forEach(function (option) {
+      if (!Object.prototype.hasOwnProperty.call(product, option.column)) return;
+      var amount = amountOf(product[option.column]);
+      if (amount == null) return;
+      list.push({
+        key: option.key,
+        label: option.label,
+        cardLabel: option.cardLabel,
+        adminLabel: option.adminLabel,
+        note: option.note,
+        amount: amount
+      });
+    });
+    if (list.length) return list;
+    var fallback = amountOf(product.price);
+    if (fallback == null) return list;
+    list.push({
+      key: "price",
+      label: "Price",
+      cardLabel: "",
+      adminLabel: "",
+      note: "",
+      amount: fallback
+    });
+    return list;
+  }
+
+  function headlinePrice(product) {
+    var options = offeredPrices(product);
+    if (!options.length) return "";
+    if (options.length === 1 && options[0].key === "price") return formatPrice(options[0].amount);
+    if (options.length === 1) return options[0].cardLabel + " " + formatPrice(options[0].amount);
+    var lowest = options[0].amount;
+    options.forEach(function (option) {
+      if (option.amount < lowest) lowest = option.amount;
+    });
+    return "From " + formatPrice(lowest);
+  }
+
+  function priceSummary(product) {
+    var options = offeredPrices(product);
+    if (!options.length) return "";
+    if (options.length === 1 && options[0].key === "price") return formatPrice(options[0].amount);
+    return options.map(function (option) {
+      return option.adminLabel + " " + formatPrice(option.amount);
+    }).join(" · ");
+  }
+
+  function readOptionalPrice(value) {
+    var text = String(value == null ? "" : value).trim();
+    if (!text) return { ok: true, value: null };
+    var parsed = parsePrice(text);
+    if (parsed == null) return { ok: false, value: null };
+    return { ok: true, value: parsed };
+  }
+
+  function storedPrice(delivered, item, collection) {
+    if (delivered != null) return delivered;
+    var amounts = [];
+    if (item != null) amounts.push(Number(item));
+    if (collection != null) amounts.push(Number(collection));
+    if (!amounts.length) return null;
+    var lowest = amounts[0];
+    amounts.forEach(function (amount) {
+      if (amount < lowest) lowest = amount;
+    });
+    return lowest.toFixed(2);
+  }
+
+  function columnsWithPrices(columns) {
+    return String(columns || "") + ",price_delivered,price_item,price_collection";
+  }
+
+  function missingPriceColumns(error) {
+    if (!error) return false;
+    var blob = String(error.message || "") + " " + String(error.details || "") + " " + String(error.hint || "");
+    if (!/price_delivered|price_item|price_collection/.test(blob)) return false;
+    var code = String(error.code || "");
+    if (code === "42703" || code === "PGRST204") return true;
+    return /schema cache|does not exist|could not find/i.test(blob);
+  }
+
   root.CurioShop = {
     CATEGORIES: CATEGORIES,
     PUBLIC_STATUSES: PUBLIC_STATUSES,
@@ -303,6 +428,13 @@
     slugify: slugify,
     formatPrice: formatPrice,
     parsePrice: parsePrice,
+    offeredPrices: offeredPrices,
+    headlinePrice: headlinePrice,
+    priceSummary: priceSummary,
+    readOptionalPrice: readOptionalPrice,
+    storedPrice: storedPrice,
+    columnsWithPrices: columnsWithPrices,
+    missingPriceColumns: missingPriceColumns,
     parseSortOrder: parseSortOrder,
     safeImageUrl: safeImageUrl,
     isPublicProduct: isPublicProduct,

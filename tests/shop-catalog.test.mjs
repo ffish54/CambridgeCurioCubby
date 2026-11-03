@@ -73,6 +73,80 @@ const gallery = shop.galleryUrls({
 assert.deepEqual(Array.from(gallery), ["https://example.test/a.jpg", "https://example.test/b.jpg"]);
 assert.equal(shop.safeImageUrl("javascript:alert(1)"), "");
 
+assert.equal(shop.readOptionalPrice("").ok, true);
+assert.equal(shop.readOptionalPrice("").value, null);
+assert.equal(shop.readOptionalPrice("  ").value, null);
+assert.equal(shop.readOptionalPrice("£45").value, "45.00");
+assert.equal(shop.readOptionalPrice("0").value, "0.00");
+assert.equal(shop.readOptionalPrice("45.555").ok, false);
+assert.equal(shop.readOptionalPrice("-1").ok, false);
+assert.equal(shop.storedPrice("48.00", "40.00", "35.00"), "48.00");
+assert.equal(shop.storedPrice(null, "40.00", "35.00"), "35.00");
+assert.equal(shop.storedPrice(null, null, "32.50"), "32.50");
+assert.equal(shop.storedPrice(null, null, null), null);
+
+const legacy = { price: "42.00" };
+assert.equal(shop.offeredPrices(legacy).map((option) => option.key).join(","), "price");
+assert.match(shop.headlinePrice(legacy), /£/);
+assert.match(shop.headlinePrice(legacy), /42\.00/);
+assert.doesNotMatch(shop.headlinePrice(legacy), /From|Delivered|Collection|Item only/);
+assert.match(shop.priceSummary(legacy), /42\.00/);
+assert.doesNotMatch(shop.priceSummary(legacy), /Delivered/);
+
+const pending = { price: "42.00", price_delivered: null, price_item: null, price_collection: null };
+assert.equal(shop.offeredPrices(pending)[0].key, "price");
+assert.match(shop.headlinePrice(pending), /42\.00/);
+
+const deliveredOnly = { price: "48.00", price_delivered: "48.00", price_item: null, price_collection: null };
+assert.match(shop.headlinePrice(deliveredOnly), /^Delivered /);
+assert.match(shop.headlinePrice(deliveredOnly), /48\.00/);
+assert.equal(shop.offeredPrices(deliveredOnly)[0].label, "Delivered to your door");
+assert.equal(shop.offeredPrices(deliveredOnly)[0].note, "");
+
+const collectionOnly = { price: "25.00", price_delivered: null, price_item: null, price_collection: 0 };
+assert.equal(shop.offeredPrices(collectionOnly).map((option) => option.key).join(","), "collection");
+assert.match(shop.headlinePrice(collectionOnly), /^Collection /);
+assert.match(shop.headlinePrice(collectionOnly), /0\.00/);
+assert.equal(shop.offeredPrices(collectionOnly)[0].note, "Collection by arrangement");
+assert.equal(shop.offeredPrices(collectionOnly)[0].label, "Collect from Wisbech");
+
+const itemOnly = { price: "40.00", price_delivered: null, price_item: "40.00", price_collection: null };
+assert.match(shop.headlinePrice(itemOnly), /^Item only /);
+assert.equal(shop.offeredPrices(itemOnly)[0].note, "Contact us to arrange collection by your courier");
+assert.equal(shop.offeredPrices(itemOnly)[0].label, "Item only, arrange your own courier");
+
+const trio = {
+  price: "48.00",
+  price_delivered: "48.00",
+  price_item: "40.00",
+  price_collection: "35.50"
+};
+const trioOptions = shop.offeredPrices(trio);
+assert.deepEqual(Array.from(trioOptions.map((option) => option.key)), ["delivered", "item", "collection"]);
+assert.match(shop.headlinePrice(trio), /^From /);
+assert.match(shop.headlinePrice(trio), /35\.50/);
+assert.doesNotMatch(shop.headlinePrice(trio), /48\.00/);
+const summary = shop.priceSummary(trio);
+assert.match(summary, /Delivered/);
+assert.match(summary, /Item only/);
+assert.match(summary, /Collection/);
+assert.match(summary, /35\.50/);
+
+assert.equal(shop.columnsWithPrices("id,price"), "id,price,price_delivered,price_item,price_collection");
+assert.equal(shop.missingPriceColumns(null), false);
+assert.equal(shop.missingPriceColumns({ code: "42501", message: "permission denied for table products" }), false);
+assert.equal(
+  shop.missingPriceColumns({
+    code: "PGRST204",
+    message: "Could not find the 'price_delivered' column of 'products' in the schema cache"
+  }),
+  true
+);
+assert.equal(
+  shop.missingPriceColumns({ code: "42703", message: "column products.price_item does not exist" }),
+  true
+);
+
 const mailto = shop.enquireMailto({ title: "Amber Cased Vase", slug: "amber-vase" }, "https://thecuriocubbyhole.com/shop.html?item=amber-vase");
 assert.match(mailto, /^mailto:curiocubbyhole@gmail\.com\?/);
 assert.match(decodeURIComponent(mailto), /Amber Cased Vase/);
@@ -98,6 +172,40 @@ assert.match(sql, /Public read listed products/);
 assert.match(sql, /Admin manages products/);
 assert.match(sql, /Public read product images/);
 assert.match(sql, /touch_product_updated_at/);
+assert.match(sql, /price_delivered numeric\(10, 2\)/);
+assert.match(sql, /price_item numeric\(10, 2\)/);
+assert.match(sql, /price_collection numeric\(10, 2\)/);
+assert.match(sql, /products_price_delivered_check check \(price_delivered >= 0\)/);
+assert.match(sql, /products_price_item_check check \(price_item >= 0\)/);
+assert.match(sql, /products_price_collection_check check \(price_collection >= 0\)/);
+assert.match(sql, /shop-prices\.sql/);
+
+const pricesUrl = new URL("../supabase/shop-prices.sql", import.meta.url);
+const pricesSql = fs.readFileSync(pricesUrl, "utf8");
+const pricesCode = pricesSql.replace(/--.*$/gm, "");
+assert.match(pricesSql, /add column if not exists price_delivered numeric\(10, 2\)/i);
+assert.match(pricesSql, /check \(price_delivered >= 0\)/i);
+assert.match(pricesSql, /add column if not exists price_item numeric\(10, 2\)/i);
+assert.match(pricesSql, /check \(price_item >= 0\)/i);
+assert.match(pricesSql, /add column if not exists price_collection numeric\(10, 2\)/i);
+assert.match(pricesSql, /check \(price_collection >= 0\)/i);
+assert.match(pricesCode, /set price_delivered = price/i);
+assert.match(pricesCode, /price_delivered is null/i);
+assert.match(pricesCode, /price_item is null/i);
+assert.match(pricesCode, /price_collection is null/i);
+assert.doesNotMatch(pricesCode, /alter\s+table\s+storage\.objects/i);
+assert.doesNotMatch(pricesCode, /storage\.objects/i);
+assert.doesNotMatch(pricesCode, /create\s+policy/i);
+assert.doesNotMatch(pricesCode, /enable\s+row\s+level\s+security/i);
+assert.doesNotMatch(pricesCode, /drop\s+policy/i);
+assert.doesNotMatch(pricesSql, /not null/i);
+
+const setup = fs.readFileSync(new URL("../supabase/SHOP-SETUP.md", import.meta.url), "utf8");
+assert.match(setup, /Adding the three prices/);
+assert.match(setup, /shop-prices\.sql/);
+assert.match(setup, /Price with delivery/);
+assert.match(setup, /Item only, own courier/);
+assert.match(setup, /Collection price/);
 
 const pages = ["index.html", "journal.html", "contact_us.html", "our_story.html", "shop.html", "admin.html"];
 const root = new URL("..", import.meta.url);
@@ -124,6 +232,7 @@ assert.match(home, /assets\/js\/shop-catalog\.js/);
 const shopPage = fs.readFileSync(new URL("shop.html", root), "utf8");
 assert.match(shopPage, /assets\/js\/shop\.js/);
 assert.match(shopPage, /data-category="Glass &amp; Crystal"/);
+assert.match(shopPage, /id="piece-prices"/);
 assert.match(shopPage, /id="piece-enquire"/);
 assert.match(shopPage, /curiocubbyhole@gmail\.com/);
 assert.doesNotMatch(shopPage, /src="\//);
@@ -134,5 +243,34 @@ assert.match(admin, /id="shop-desk"/);
 assert.match(admin, /id="tab-shop"/);
 assert.match(admin, /assets\/js\/admin-shop\.js/);
 assert.match(admin, /product-images|upload-images/);
+assert.match(admin, /Price with delivery \(£\)/);
+assert.match(admin, /Item only, own courier \(£\)/);
+assert.match(admin, /Collection price \(£\)/);
+assert.match(admin, /id="product-price-delivered"/);
+assert.match(admin, /id="product-price-item"/);
+assert.match(admin, /id="product-price-collection"/);
+assert.doesNotMatch(admin, /id="product-price"/);
+assert.match(admin, /including UK delivery by the shop/);
+assert.match(admin, /arranges their own courier/);
+assert.match(admin, /collect in person from Wisbech/);
+
+const shopJs = fs.readFileSync(new URL("../assets/js/shop.js", import.meta.url), "utf8");
+assert.match(shopJs, /headlinePrice/);
+assert.match(shopJs, /offeredPrices/);
+assert.match(shopJs, /missingPriceColumns/);
+assert.match(shopJs, /columnsWithPrices/);
+assert.match(shopJs, /Delivered to your door|option\.label/);
+const homeJs = fs.readFileSync(new URL("../assets/js/home-shop.js", import.meta.url), "utf8");
+assert.match(homeJs, /headlinePrice/);
+assert.match(homeJs, /missingPriceColumns/);
+assert.match(homeJs, /columnsWithPrices/);
+const adminJs = fs.readFileSync(new URL("../assets/js/admin-shop.js", import.meta.url), "utf8");
+assert.match(adminJs, /price_delivered/);
+assert.match(adminJs, /price_item/);
+assert.match(adminJs, /price_collection/);
+assert.match(adminJs, /readOptionalPrice/);
+assert.match(adminJs, /storedPrice/);
+assert.match(adminJs, /priceSummary/);
+assert.match(adminJs, /shop-prices\.sql/);
 
 console.log("shop catalog tests passed");

@@ -608,6 +608,7 @@ a.product-card:focus-visible,
     font-family: var(--heading-font);
     font-size: 18px;
     font-weight: 700;
+    overflow-wrap: anywhere;
 }
 
 .ornate-button {

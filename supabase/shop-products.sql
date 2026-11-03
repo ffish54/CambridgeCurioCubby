@@ -13,6 +13,12 @@
 -- What this sets up
 --   * public.products — one row per piece. status draft is hidden.
 --     available, reserved, and sold are readable by anyone.
+--   * price_delivered, price_item, and price_collection — optional prices
+--     in pounds. Null means that option is not offered. price stays as the
+--     headline (the delivered price when that is set, otherwise the lowest
+--     price offered). Creating the table only happens when it is missing,
+--     so an existing table does not gain these columns from this file.
+--     Run shop-prices.sql once for a table that is already there.
 --   * Insert, update, and delete only for the one admin user.
 --   * updated_at maintained by a trigger.
 --   * Bucket product-images, public, so photographs load at
@@ -32,7 +38,8 @@
 --
 -- Re-running the script is safe: the table is created only if missing,
 -- policies are replaced, and the bucket insert does not overwrite an
--- existing bucket.
+-- existing bucket. Re-running does not add columns to a table that already
+-- exists. Use shop-prices.sql for that.
 
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
@@ -40,6 +47,9 @@ create table if not exists public.products (
   title text not null,
   category text not null,
   price numeric(10, 2) not null,
+  price_delivered numeric(10, 2),
+  price_item numeric(10, 2),
+  price_collection numeric(10, 2),
   condition text,
   era text,
   maker text,
@@ -67,6 +77,9 @@ create table if not exists public.products (
   ),
   constraint products_status_check check (status in ('available', 'reserved', 'sold', 'draft')),
   constraint products_price_check check (price >= 0 and price <= 99999999.99),
+  constraint products_price_delivered_check check (price_delivered >= 0),
+  constraint products_price_item_check check (price_item >= 0),
+  constraint products_price_collection_check check (price_collection >= 0),
   constraint products_images_limit check (cardinality(images) <= 12)
 );
 

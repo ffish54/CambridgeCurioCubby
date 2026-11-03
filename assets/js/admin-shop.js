@@ -21,7 +21,9 @@
   var slugInput = document.getElementById("product-slug");
   var slugFromTitle = document.getElementById("product-slug-from-title");
   var categoryInput = document.getElementById("product-category");
-  var priceInput = document.getElementById("product-price");
+  var priceDeliveredInput = document.getElementById("product-price-delivered");
+  var priceItemInput = document.getElementById("product-price-item");
+  var priceCollectionInput = document.getElementById("product-price-collection");
   var conditionInput = document.getElementById("product-condition");
   var eraInput = document.getElementById("product-era");
   var makerInput = document.getElementById("product-maker");
@@ -301,7 +303,7 @@
 
     var details = document.createElement("p");
     var bits = [product.category || "Uncategorised"];
-    var price = CurioShop.formatPrice(product.price);
+    var price = CurioShop.priceSummary(product);
     if (price) bits.push(price);
     var when = formatWhen(product.updated_at || product.created_at);
     if (when) bits.push("Updated " + when);
@@ -388,6 +390,9 @@
     featuredInput.checked = false;
     statusInput.value = "draft";
     sortInput.value = "0";
+    priceDeliveredInput.value = "";
+    priceItemInput.value = "";
+    priceCollectionInput.value = "";
     images = [];
     cover = "";
     fileInput.value = "";
@@ -410,7 +415,7 @@
     slugInput.value = product.slug || "";
     slugTouched = true;
     if (CurioShop.CATEGORIES.indexOf(product.category) !== -1) categoryInput.value = product.category;
-    priceInput.value = product.price == null ? "" : String(product.price);
+    fillPrices(product);
     conditionInput.value = product.condition || "";
     eraInput.value = product.era || "";
     makerInput.value = product.maker || "";
@@ -442,6 +447,31 @@
       titleInput.focus();
       focusEditor();
     }
+  }
+
+  function priceFieldValue(value) {
+    if (value == null || value === "") return "";
+    var text = typeof value === "number" ? value.toFixed(2) : String(value).trim();
+    var parsed = CurioShop.parsePrice(text);
+    return parsed == null ? text : parsed;
+  }
+
+  function fillPrices(product) {
+    var delivered = Object.prototype.hasOwnProperty.call(product, "price_delivered") ? product.price_delivered : null;
+    var item = Object.prototype.hasOwnProperty.call(product, "price_item") ? product.price_item : null;
+    var collection = Object.prototype.hasOwnProperty.call(product, "price_collection") ? product.price_collection : null;
+    var anySet = (delivered != null && delivered !== "")
+      || (item != null && item !== "")
+      || (collection != null && collection !== "");
+    if (!anySet) {
+      priceDeliveredInput.value = priceFieldValue(product.price);
+      priceItemInput.value = "";
+      priceCollectionInput.value = "";
+      return;
+    }
+    priceDeliveredInput.value = priceFieldValue(delivered);
+    priceItemInput.value = priceFieldValue(item);
+    priceCollectionInput.value = priceFieldValue(collection);
   }
 
   function discardFormEdits() {
@@ -699,7 +729,9 @@
     var title = titleInput.value.trim();
     var slug = CurioShop.slugify(slugInput.value.trim() || title);
     var category = categoryInput.value;
-    var price = CurioShop.parsePrice(priceInput.value);
+    var delivered = CurioShop.readOptionalPrice(priceDeliveredInput.value);
+    var itemOnly = CurioShop.readOptionalPrice(priceItemInput.value);
+    var collection = CurioShop.readOptionalPrice(priceCollectionInput.value);
     var sortOrder = CurioShop.parseSortOrder(sortInput.value);
 
     if (selectedFiles().length) {
@@ -723,11 +755,27 @@
       categoryInput.focus();
       return null;
     }
-    if (price == null) {
-      setFormMessage("Add a price in pounds, such as 45 or 45.00.", "error");
-      priceInput.focus();
+    if (!delivered.ok) {
+      setFormMessage("Enter the price with delivery in pounds, such as 45 or 45.00, or leave it blank.", "error");
+      priceDeliveredInput.focus();
       return null;
     }
+    if (!itemOnly.ok) {
+      setFormMessage("Enter the item-only price in pounds, such as 45 or 45.00, or leave it blank.", "error");
+      priceItemInput.focus();
+      return null;
+    }
+    if (!collection.ok) {
+      setFormMessage("Enter the collection price in pounds, such as 45 or 45.00, or leave it blank.", "error");
+      priceCollectionInput.focus();
+      return null;
+    }
+    if (delivered.value == null && itemOnly.value == null && collection.value == null) {
+      setFormMessage("Add at least one price. Leave the others blank if that option is not offered.", "error");
+      priceDeliveredInput.focus();
+      return null;
+    }
+    var price = CurioShop.storedPrice(delivered.value, itemOnly.value, collection.value);
     if (sortOrder == null) {
       setFormMessage("Shelf order needs to be a whole number, or left blank.", "error");
       sortInput.focus();
@@ -759,6 +807,9 @@
       slug: slug,
       category: category,
       price: price,
+      price_delivered: delivered.value,
+      price_item: itemOnly.value,
+      price_collection: collection.value,
       condition: blankToNull(conditionInput.value),
       era: blankToNull(eraInput.value),
       maker: blankToNull(makerInput.value),
@@ -866,7 +917,9 @@
       title: titleInput.value,
       slug: slugInput.value,
       category: categoryInput.value,
-      price: priceInput.value,
+      priceDelivered: priceDeliveredInput.value,
+      priceItem: priceItemInput.value,
+      priceCollection: priceCollectionInput.value,
       condition: conditionInput.value,
       era: eraInput.value,
       maker: makerInput.value,
@@ -974,8 +1027,11 @@
     if (code === "23505" || /duplicate key/i.test(message)) {
       return "Another piece already uses that slug. Choose a different one.";
     }
-    if (code === "23514" || /products_category_check|products_status_check|products_price_check/i.test(message)) {
-      return "Check the category, status, and price. The shelf only accepts the six categories and a price in pounds.";
+    if (code === "23514" || /products_category_check|products_status_check|products_price_/i.test(message)) {
+      return "Check the category, status, and prices. Each price must be zero or more, in pounds and pence.";
+    }
+    if (window.CurioShop && CurioShop.missingPriceColumns(error)) {
+      return "The three prices are not in Supabase yet. Run supabase/shop-prices.sql in the SQL editor. If you have just run it, wait a moment and save again.";
     }
     if (code === "42501" || /row-level security/i.test(message)) {
       return "Supabase refused this change. The signed-in account needs permission to manage products.";

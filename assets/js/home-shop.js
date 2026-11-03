@@ -96,10 +96,13 @@
     title.textContent = product.title || "Untitled piece";
     info.append(title);
 
-    var price = document.createElement("p");
-    price.className = "price";
-    price.textContent = CurioShop.formatPrice(product.price);
-    info.append(price);
+    var headline = CurioShop.headlinePrice(product);
+    if (headline) {
+      var price = document.createElement("p");
+      price.className = "price";
+      price.textContent = headline;
+      info.append(price);
+    }
 
     link.append(frame, info);
     item.append(link);
@@ -134,10 +137,19 @@
     try {
       var result = await client
         .from("products")
-        .select(LIST_COLUMNS)
+        .select(CurioShop.columnsWithPrices(LIST_COLUMNS))
         .in("status", CurioShop.PUBLIC_STATUSES)
         .order("created_at", { ascending: false })
         .limit(LIMIT);
+
+      if (result && result.error && CurioShop.missingPriceColumns(result.error)) {
+        result = await client
+          .from("products")
+          .select(LIST_COLUMNS)
+          .in("status", CurioShop.PUBLIC_STATUSES)
+          .order("created_at", { ascending: false })
+          .limit(LIMIT);
+      }
 
       if (result.error) throw result.error;
 
