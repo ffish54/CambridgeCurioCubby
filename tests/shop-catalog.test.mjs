@@ -272,5 +272,101 @@ assert.match(adminJs, /readOptionalPrice/);
 assert.match(adminJs, /storedPrice/);
 assert.match(adminJs, /priceSummary/);
 assert.match(adminJs, /shop-prices\.sql/);
+assert.match(adminJs, /curioSuggestSale/);
+assert.match(adminJs, /tab-notifications/);
+assert.match(adminJs, /#notifications/);
+
+assert.deepEqual(
+  Array.from(shop.offerChoices(trio).map((option) => option.key)),
+  ["delivered", "item", "collection"]
+);
+assert.equal(shop.offerChoices(trio)[1].label, "Item only, own courier");
+assert.equal(shop.offerChoices(legacy)[0].key, "delivered");
+assert.equal(shop.offerChoices(legacy)[0].label, "Delivered");
+assert.equal(shop.askedAmount(trio, "item"), 40);
+assert.equal(shop.askedAmount(trio, "other"), null);
+assert.equal(shop.preferredSaleOption(trio).key, "delivered");
+assert.equal(shop.preferredSaleOption({}).key, "other");
+assert.equal(shop.offerPercent(30, 48), 63);
+assert.equal(shop.offerPercent(24, 48), 50);
+assert.equal(shop.offerPercent(10, 0), null);
+assert.equal(shop.channelLabel("in_person"), "In person");
+assert.equal(shop.channelLabel("ebay"), "eBay");
+assert.equal(shop.inLondonMonth("2026-04-30T23:30:00Z", "2026-05-02T12:00:00Z"), true);
+assert.equal(shop.inLondonMonth("2026-04-30T22:30:00Z", "2026-05-02T12:00:00Z"), false);
+assert.match(shop.formatWhen("2026-11-04T09:30:00Z"), /2026/);
+
+const offer = {
+  product_title: "Amber Cased Vase",
+  name: "Ada Lovelace",
+  email: "ada@example.com",
+  amount: "30.00",
+  option: "delivered"
+};
+const contactMail = shop.offerContactMailto(offer);
+assert.match(contactMail, /^mailto:ada@example.com\?/);
+assert.match(decodeURIComponent(contactMail), /Your offer on Amber Cased Vase/);
+const counterMail = shop.counterMailto(offer, "36.00");
+assert.match(counterMail, /^mailto:ada@example.com\?/);
+assert.match(decodeURIComponent(counterMail), /We can do/);
+assert.match(decodeURIComponent(counterMail), /36\.00/);
+assert.equal(shop.offerContactMailto({ email: "bad email" }), "");
+
+const notesUrl = new URL("../supabase/shop-notifications.sql", import.meta.url);
+const notesSql = fs.readFileSync(notesUrl, "utf8");
+const notesCode = notesSql.replace(/--.*$/gm, "");
+assert.doesNotMatch(notesCode, /storage\.objects/i);
+assert.doesNotMatch(notesCode, /storage\.buckets/i);
+assert.doesNotMatch(notesCode, /create\s+policy[\s\S]*storage/i);
+assert.match(notesSql, /does not alter storage/i);
+assert.match(notesSql, /222043d1-053b-45be-ab39-20216c84ee86/);
+assert.match(notesSql, /create table if not exists public\.offers/i);
+assert.match(notesSql, /create table if not exists public\.sales/i);
+assert.match(notesSql, /references public\.products \(id\) on delete set null/i);
+assert.match(notesSql, /status in \('new', 'read', 'accepted', 'declined', 'countered', 'archived'\)/);
+assert.match(notesSql, /amount > 0 and amount <= 99999999\.99/);
+assert.match(notesSql, /option in \('delivered', 'item', 'collection'\)/);
+assert.match(notesSql, /option in \('delivered', 'item', 'collection', 'other'\)/);
+assert.match(notesSql, /channel in \('website', 'etsy', 'ebay', 'vinted', 'in_person', 'other'\)/);
+assert.match(notesSql, /payment_ref text/);
+assert.match(notesSql, /source text/);
+assert.match(notesSql, /Public insert new offers/);
+assert.match(notesSql, /status = 'new'/);
+assert.match(notesSql, /grant insert on table public\.offers to anon, public/i);
+assert.match(notesSql, /Admin manages offers/);
+assert.match(notesSql, /Admin manages sales/);
+assert.doesNotMatch(notesCode, /grant select on table public\.offers to anon/i);
+
+assert.match(setup, /shop-notifications\.sql/);
+assert.match(setup, /privacy\.html/);
+assert.match(setup, /name, email address, phone number/);
+
+assert.match(shopPage, /Make an offer/);
+assert.match(shopPage, /I agree to be contacted about this offer/);
+assert.match(shopPage, /href="privacy\.html"/);
+assert.match(shopPage, /id="offer-company"/);
+assert.match(shopPage, /id="piece-offer"/);
+assert.match(shopJs, /ccc-offer-times/);
+assert.match(shopJs, /from\("offers"\)\.insert/);
+assert.match(shopJs, /status === "available" \|\| product\.status === "reserved"/);
+
+assert.match(admin, /id="tab-notifications"/);
+assert.match(admin, /id="notifications-badge"/);
+assert.match(admin, /assets\/js\/admin-notifications\.js/);
+assert.match(admin, /id="sale-dialog"/);
+assert.match(admin, /data-notice-filter="unread"/);
+const notesJs = fs.readFileSync(new URL("../assets/js/admin-notifications.js", import.meta.url), "utf8");
+assert.match(notesJs, /postgres_changes/);
+assert.match(notesJs, /notifications-refresh/);
+assert.match(notesJs, /curioSuggestSale/);
+assert.match(notesJs, /counterMailto/);
+assert.match(notesJs, /status: "accepted"/);
+assert.match(notesJs, /payment_ref|source/);
+
+const privacy = fs.readFileSync(new URL("privacy.html", root), "utf8");
+assert.match(privacy, /href="shop\.html"/);
+assert.match(privacy, /curiocubbyhole@gmail\.com/);
+assert.doesNotMatch(privacy, /header-icons/);
+assert.doesNotMatch(privacy, /href="\//);
 
 console.log("shop catalog tests passed");

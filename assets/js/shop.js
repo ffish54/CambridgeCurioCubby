@@ -289,8 +289,15 @@
     entry.hidden = true;
     missing.hidden = false;
     entryStatus.textContent = "";
+    readingProduct = null;
     var prices = document.getElementById("piece-prices");
     if (prices) prices.replaceChildren();
+    var open = document.getElementById("piece-offer-open");
+    var form = document.getElementById("piece-offer");
+    var thanks = document.getElementById("piece-offer-thanks");
+    if (open) open.hidden = true;
+    if (form) form.hidden = true;
+    if (thanks) thanks.hidden = true;
     document.title = "Piece not found | Shop | Cambridge Curio Cubbyhole";
   }
 
@@ -436,20 +443,261 @@
     var note = document.getElementById("piece-note");
     if (product.status === "reserved") {
       note.hidden = false;
-      note.textContent = "Reserved. This piece is being held. Enquire if you would like to know whether it comes free.";
+      note.textContent = "Reserved. This piece is being held. You can still make an offer, or enquire if you would like to know whether it comes free.";
     } else if (product.status === "sold") {
       note.hidden = false;
       note.textContent = "Sold. This piece has found a home. You are welcome to ask if something similar turns up.";
     } else {
       note.hidden = false;
-      note.textContent = "One of a kind. Enquire to reserve it or ask a question.";
+      note.textContent = "One of a kind. Enquire to reserve it, make an offer, or ask a question.";
     }
 
     var enquire = document.getElementById("piece-enquire");
     enquire.href = CurioShop.enquireMailto(product, piecePageUrl(product.slug));
+    renderOffer(product);
 
     fillStory(document.getElementById("piece-story"), product.description);
     renderGallery(product);
+  }
+
+  var readingProduct = null;
+  var offerSending = false;
+  var OFFER_GAP_MS = 45000;
+  var OFFER_HOUR_MS = 60 * 60 * 1000;
+  var OFFER_HOUR_LIMIT = 5;
+  var OFFER_TIMES_KEY = "ccc-offer-times";
+
+  function recentOfferTimes() {
+    try {
+      var raw = JSON.parse(window.localStorage.getItem(OFFER_TIMES_KEY) || "[]");
+      if (!Array.isArray(raw)) return [];
+      var now = Date.now();
+      return raw.filter(function (stamp) {
+        return typeof stamp === "number" && now - stamp < OFFER_HOUR_MS;
+      });
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function rememberOfferTime() {
+    try {
+      var times = recentOfferTimes();
+      times.push(Date.now());
+      window.localStorage.setItem(OFFER_TIMES_KEY, JSON.stringify(times.slice(-OFFER_HOUR_LIMIT)));
+    } catch (error) {
+      /* A private browser can still send this one offer. */
+    }
+  }
+
+  function throttleMessage() {
+    var times = recentOfferTimes();
+    var now = Date.now();
+    if (times.some(function (stamp) { return now - stamp < OFFER_GAP_MS; })) {
+      return "Please wait a moment before sending another offer.";
+    }
+    if (times.length >= OFFER_HOUR_LIMIT) {
+      return "You have sent several offers recently. Please wait a while, or enquire by email.";
+    }
+    return "";
+  }
+
+  function setOfferStatus(text, kind) {
+    var line = document.getElementById("offer-message-status");
+    if (!line) return;
+    line.textContent = text || "";
+    line.classList.toggle("is-error", kind === "error");
+  }
+
+  function showOfferThanks() {
+    var form = document.getElementById("piece-offer");
+    var open = document.getElementById("piece-offer-open");
+    var thanks = document.getElementById("piece-offer-thanks");
+    if (form) form.hidden = true;
+    if (open) open.hidden = true;
+    if (thanks) {
+      thanks.hidden = false;
+      thanks.textContent = "Thank you. We have your offer and will be in touch by email if we can accept it.";
+    }
+  }
+
+  function resetOfferForm() {
+    var form = document.getElementById("piece-offer");
+    var thanks = document.getElementById("piece-offer-thanks");
+    if (form) {
+      form.reset();
+      form.hidden = true;
+    }
+    if (thanks) {
+      thanks.hidden = true;
+      thanks.textContent = "";
+    }
+    setOfferStatus("");
+  }
+
+  function renderOffer(product) {
+    readingProduct = product;
+    var open = document.getElementById("piece-offer-open");
+    var options = document.getElementById("offer-options");
+    if (!open || !options) return;
+    resetOfferForm();
+    options.replaceChildren();
+    var choices = CurioShop.offerChoices(product);
+    var canOffer = (product.status === "available" || product.status === "reserved") && choices.length > 0;
+    open.hidden = !canOffer;
+    choices.forEach(function (choice, index) {
+      var item = document.createElement("li");
+      var label = document.createElement("label");
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = "offer-option";
+      input.value = choice.key;
+      input.required = true;
+      if (index === 0) input.checked = true;
+      var text = document.createElement("span");
+      text.textContent = choice.label + " (" + CurioShop.formatPrice(choice.amount) + ")";
+      label.append(input, text);
+      item.append(label);
+      options.append(item);
+    });
+  }
+
+  function chosenOfferOption() {
+    var selected = document.querySelector("#offer-options input[name='offer-option']:checked");
+    return selected ? selected.value : "";
+  }
+
+  function friendlyOfferError(error) {
+    var code = String((error && error.code) || "");
+    var message = String((error && error.message) || "");
+    if (/available or reserved/i.test(message)) {
+      return "Offers are closed on this piece. Please enquire by email instead.";
+    }
+    if (code === "PGRST205" || code === "42P01" || /schema cache|does not exist|could not find the table/i.test(message)) {
+      return "Offers are not open just now. Please enquire by email instead.";
+    }
+    if (code === "23514" || code === "22001") {
+      return "Please check the name, email, amount, and message, then try again.";
+    }
+    return "We could not send that offer. Please try again, or enquire by email.";
+  }
+
+  async function submitOffer() {
+    if (offerSending || !readingProduct || !publicClient) return;
+    var name = document.getElementById("offer-name").value.trim();
+    var email = document.getElementById("offer-email").value.trim();
+    var phone = document.getElementById("offer-phone").value.trim();
+    var amountText = document.getElementById("offer-amount").value;
+    var message = document.getElementById("offer-message").value.trim();
+    var consent = document.getElementById("offer-consent").checked;
+    var honeypot = document.getElementById("offer-company").value.trim();
+    var option = chosenOfferOption();
+    var parsed = CurioShop.parsePrice(amountText);
+    var amount = parsed == null ? null : Number(parsed);
+
+    if (!name || name.length > 120) {
+      setOfferStatus("Add your name.", "error");
+      document.getElementById("offer-name").focus();
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200) {
+      setOfferStatus("Add an email address we can reply to.", "error");
+      document.getElementById("offer-email").focus();
+      return;
+    }
+    if (phone.length > 40) {
+      setOfferStatus("That phone number is too long.", "error");
+      document.getElementById("offer-phone").focus();
+      return;
+    }
+    if (amount == null || amount <= 0) {
+      setOfferStatus("Enter your offer in pounds, such as 30 or 30.00.", "error");
+      document.getElementById("offer-amount").focus();
+      return;
+    }
+    if (option !== "delivered" && option !== "item" && option !== "collection") {
+      setOfferStatus("Choose how you would like the piece.", "error");
+      return;
+    }
+    if (message.length > 2000) {
+      setOfferStatus("The message needs to be 2,000 characters or fewer.", "error");
+      document.getElementById("offer-message").focus();
+      return;
+    }
+    if (!consent) {
+      setOfferStatus("Tick the box to agree that we may contact you about this offer.", "error");
+      document.getElementById("offer-consent").focus();
+      return;
+    }
+
+    var wait = throttleMessage();
+    if (wait) {
+      setOfferStatus(wait, "error");
+      return;
+    }
+
+    if (honeypot) {
+      rememberOfferTime();
+      showOfferThanks();
+      return;
+    }
+
+    offerSending = true;
+    var send = document.getElementById("offer-send");
+    if (send) send.disabled = true;
+    setOfferStatus("Sending your offer…");
+
+    try {
+      var result = await publicClient.from("offers").insert({
+        product_id: readingProduct.id,
+        product_title: String(readingProduct.title || "Untitled piece").trim().slice(0, 200),
+        name: name,
+        email: email,
+        phone: phone || null,
+        amount: amount,
+        option: option,
+        message: message || null,
+        status: "new"
+      });
+      if (result.error) {
+        setOfferStatus(friendlyOfferError(result.error), "error");
+        return;
+      }
+      rememberOfferTime();
+      showOfferThanks();
+    } catch (error) {
+      setOfferStatus("We could not send that offer. Please try again, or enquire by email.", "error");
+    } finally {
+      offerSending = false;
+      if (send) send.disabled = false;
+    }
+  }
+
+  function bindOfferForm() {
+    var open = document.getElementById("piece-offer-open");
+    var form = document.getElementById("piece-offer");
+    var close = document.getElementById("offer-close");
+    if (!open || !form || form.dataset.bound === "true") return;
+    form.dataset.bound = "true";
+    open.addEventListener("click", function () {
+      form.hidden = false;
+      open.hidden = true;
+      setOfferStatus("");
+      var name = document.getElementById("offer-name");
+      if (name) name.focus();
+    });
+    if (close) {
+      close.addEventListener("click", function () {
+        form.hidden = true;
+        if (readingProduct && (readingProduct.status === "available" || readingProduct.status === "reserved")) {
+          open.hidden = false;
+        }
+      });
+    }
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      submitOffer();
+    });
   }
 
   async function loadEntry(slug) {
@@ -507,6 +755,8 @@
         });
       });
     }
+
+    bindOfferForm();
 
     if (!clientReady()) {
       if (route.item) {

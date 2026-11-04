@@ -34,6 +34,7 @@
     <nav class="desk-tabs" role="tablist" aria-label="Cabinet desks">
       <button type="button" class="desk-tab is-active" id="tab-journal" role="tab" aria-selected="true" aria-controls="journal-desk">Journal</button>
       <button type="button" class="desk-tab" id="tab-shop" role="tab" aria-selected="false" aria-controls="shop-desk">Shop</button>
+      <button type="button" class="desk-tab" id="tab-notifications" role="tab" aria-selected="false" aria-controls="notifications-desk">Notifications <span id="notifications-badge" class="tab-badge" hidden></span></button>
     </nav>
 
     <main class="dash-main" id="journal-desk" role="tabpanel" aria-labelledby="tab-journal">
@@ -137,6 +138,11 @@
           <button type="button" class="filter" data-product-filter="draft" role="tab" aria-selected="false">Drafts</button>
         </div>
 
+        <div id="sale-suggest" class="sale-suggest" hidden>
+          <p id="sale-suggest-text"></p>
+          <button type="button" id="sale-suggest-record" class="solid-button">Record sale</button>
+          <button type="button" id="sale-suggest-dismiss" class="line-button">Not now</button>
+        </div>
         <p id="product-list-message" class="status-message" role="status" aria-live="polite"></p>
         <ul id="product-list" class="post-list"></ul>
       </section>
@@ -237,12 +243,100 @@
         </form>
       </section>
     </main>
+
+    <main class="dash-main is-hidden" id="notifications-desk" role="tabpanel" aria-labelledby="tab-notifications" hidden>
+      <section class="panel notifications-panel" aria-labelledby="notifications-heading">
+        <div class="panel-head">
+          <h2 id="notifications-heading" tabindex="-1">Notifications</h2>
+          <button type="button" id="notifications-refresh" class="line-button">Refresh</button>
+        </div>
+        <p class="hint">Offers from the shop, and sales recorded here. Nothing is charged from this page.</p>
+        <p id="notifications-totals" class="notice-totals">This month: no sales recorded.</p>
+        <div class="filters" role="tablist" aria-label="Filter notifications">
+          <button type="button" class="filter is-active" data-notice-filter="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="filter" data-notice-filter="offers" role="tab" aria-selected="false">Offers</button>
+          <button type="button" class="filter" data-notice-filter="sales" role="tab" aria-selected="false">Sales</button>
+          <button type="button" class="filter" data-notice-filter="unread" role="tab" aria-selected="false">Unread</button>
+        </div>
+        <p id="notifications-message" class="status-message" role="status" aria-live="polite"></p>
+        <ul id="notifications-list" class="post-list"></ul>
+      </section>
+    </main>
   </div>
+
+  <dialog id="sale-dialog" class="cabinet-dialog" aria-labelledby="sale-dialog-title">
+    <form id="sale-form">
+      <h2 id="sale-dialog-title">Record this sale</h2>
+      <p id="sale-dialog-intro" class="hint"></p>
+      <p id="sale-piece-label" class="sale-piece-label"></p>
+
+      <label for="sale-amount">Sale price (£)</label>
+      <input id="sale-amount" name="amount" type="text" inputmode="decimal" maxlength="12" autocomplete="off" required>
+
+      <label for="sale-option">Option</label>
+      <select id="sale-option" name="option" required>
+        <option value="delivered">Delivered</option>
+        <option value="item">Item only, own courier</option>
+        <option value="collection">Collection</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label for="sale-buyer-name">Buyer name <span class="optional">(optional)</span></label>
+      <input id="sale-buyer-name" name="buyer_name" type="text" maxlength="120" autocomplete="name">
+
+      <label for="sale-buyer-email">Buyer email <span class="optional">(optional)</span></label>
+      <input id="sale-buyer-email" name="buyer_email" type="email" maxlength="200" autocomplete="email">
+
+      <label for="sale-channel">Channel</label>
+      <select id="sale-channel" name="channel" required>
+        <option value="website">Website</option>
+        <option value="etsy">Etsy</option>
+        <option value="ebay">eBay</option>
+        <option value="vinted">Vinted</option>
+        <option value="in_person">In person</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label for="sale-sold-at">Date sold</label>
+      <input id="sale-sold-at" name="sold_at" type="datetime-local" required>
+
+      <label for="sale-notes">Notes <span class="optional">(optional)</span></label>
+      <textarea id="sale-notes" name="notes" rows="3" maxlength="2000"></textarea>
+
+      <fieldset id="sale-status-fields">
+        <legend>Piece after accepting</legend>
+        <label><input type="radio" name="sale-next-status" value="sold" checked> Sold</label>
+        <label><input type="radio" name="sale-next-status" value="reserved"> Reserved</label>
+      </fieldset>
+
+      <p id="sale-dialog-message" class="status-message" role="status" aria-live="polite"></p>
+      <div class="form-actions">
+        <button type="submit" id="sale-save" class="solid-button">Record sale</button>
+        <button type="button" id="sale-dismiss" class="line-button">Not now</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="counter-dialog" class="cabinet-dialog" aria-labelledby="counter-dialog-title">
+    <form id="counter-form">
+      <h2 id="counter-dialog-title">Counter this offer</h2>
+      <p id="counter-intro" class="hint"></p>
+      <label for="counter-amount">Counter amount (£)</label>
+      <input id="counter-amount" name="counter_amount" type="text" inputmode="decimal" maxlength="12" autocomplete="off" required>
+      <p class="hint">This opens an email to the customer with the amount filled in, and marks the offer as countered.</p>
+      <p id="counter-message" class="status-message" role="status" aria-live="polite"></p>
+      <div class="form-actions">
+        <button type="submit" id="counter-send" class="solid-button">Open email</button>
+        <button type="button" id="counter-cancel" class="line-button">Cancel</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/shop-catalog.js"></script>
   <script src="assets/js/admin.js"></script>
   <script src="assets/js/admin-shop.js"></script>
+  <script src="assets/js/admin-notifications.js"></script>
 </body>
 </html>

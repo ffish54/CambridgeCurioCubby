@@ -110,7 +110,45 @@
                         <ul id="piece-prices" class="piece-prices" aria-label="Prices"></ul>
                         <dl id="piece-facts" class="piece-facts"></dl>
                         <p id="piece-note" class="piece-note" hidden></p>
-                        <a id="piece-enquire" class="piece-enquire" href="mailto:curiocubbyhole@gmail.com">Enquire about this piece</a>
+                        <div class="piece-actions">
+                            <a id="piece-enquire" class="piece-enquire" href="mailto:curiocubbyhole@gmail.com">Enquire about this piece</a>
+                            <button type="button" id="piece-offer-open" class="piece-offer-open" hidden>Make an offer</button>
+                        </div>
+                        <form id="piece-offer" class="piece-offer" hidden novalidate>
+                            <h2 class="piece-offer-heading">Make an offer</h2>
+                            <p class="piece-offer-lead">Tell us what you would like to pay. We will reply by email if we can accept it. Nothing is charged from this page.</p>
+                            <div class="offer-honeypot" aria-hidden="true">
+                                <label for="offer-company">Company website</label>
+                                <input id="offer-company" name="company_website" type="text" tabindex="-1" autocomplete="off">
+                            </div>
+                            <label for="offer-name">Your name</label>
+                            <input id="offer-name" name="name" type="text" required maxlength="120" autocomplete="name">
+                            <label for="offer-email">Email</label>
+                            <input id="offer-email" name="email" type="email" required maxlength="200" autocomplete="email">
+                            <label for="offer-phone">Phone <span class="offer-optional">(optional)</span></label>
+                            <input id="offer-phone" name="phone" type="tel" maxlength="40" autocomplete="tel">
+                            <label for="offer-amount">Your offer (£)</label>
+                            <input id="offer-amount" name="amount" type="text" inputmode="decimal" required maxlength="12" placeholder="30.00" autocomplete="off">
+                            <fieldset class="offer-options-set">
+                                <legend>How you would like it</legend>
+                                <ul id="offer-options" class="offer-options"></ul>
+                            </fieldset>
+                            <label for="offer-message">Message <span class="offer-optional">(optional)</span></label>
+                            <textarea id="offer-message" name="message" rows="4" maxlength="2000"></textarea>
+                            <div class="offer-consent-row">
+                                <label class="offer-consent" for="offer-consent">
+                                    <input id="offer-consent" name="consent" type="checkbox" required>
+                                    <span>I agree to be contacted about this offer</span>
+                                </label>
+                                <a class="offer-privacy" href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>
+                            </div>
+                            <p id="offer-message-status" class="offer-status" role="status" aria-live="polite"></p>
+                            <div class="piece-actions">
+                                <button type="submit" id="offer-send" class="piece-enquire">Send offer</button>
+                                <button type="button" id="offer-close" class="piece-offer-open">Close</button>
+                            </div>
+                        </form>
+                        <p id="piece-offer-thanks" class="piece-offer-thanks" hidden role="status"></p>
                         <h2 class="piece-story-heading">About this piece</h2>
                         <div id="piece-story" class="piece-story"></div>
                     </div>

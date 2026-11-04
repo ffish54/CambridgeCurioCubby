@@ -410,6 +410,134 @@
     return String(columns || "") + ",price_delivered,price_item,price_collection";
   }
 
+  var SALE_CHANNELS = [
+    { key: "website", label: "Website" },
+    { key: "etsy", label: "Etsy" },
+    { key: "ebay", label: "eBay" },
+    { key: "vinted", label: "Vinted" },
+    { key: "in_person", label: "In person" },
+    { key: "other", label: "Other" }
+  ];
+
+  function offerOptionLabel(key) {
+    if (key === "delivered") return "Delivered";
+    if (key === "item") return "Item only, own courier";
+    if (key === "collection") return "Collection";
+    if (key === "other") return "Other";
+    return "";
+  }
+
+  function offerChoices(product) {
+    var list = offeredPrices(product).filter(function (option) {
+      return option.key === "delivered" || option.key === "item" || option.key === "collection";
+    }).map(function (option) {
+      return {
+        key: option.key,
+        label: offerOptionLabel(option.key),
+        detail: option.label,
+        amount: option.amount
+      };
+    });
+    if (list.length) return list;
+    var fallback = offeredPrices(product).filter(function (option) {
+      return option.key === "price";
+    })[0];
+    if (!fallback) return list;
+    return [{
+      key: "delivered",
+      label: offerOptionLabel("delivered"),
+      detail: "Price",
+      amount: fallback.amount
+    }];
+  }
+
+  function askedAmount(product, optionKey) {
+    var choices = offerChoices(product);
+    var i;
+    for (i = 0; i < choices.length; i += 1) {
+      if (choices[i].key === optionKey) return choices[i].amount;
+    }
+    return null;
+  }
+
+  function preferredSaleOption(product) {
+    var choices = offerChoices(product);
+    if (choices.length) return { key: choices[0].key, amount: choices[0].amount };
+    return { key: "other", amount: null };
+  }
+
+  function offerPercent(amount, asked) {
+    var offer = typeof amount === "number" ? amount : Number(amount);
+    var list = typeof asked === "number" ? asked : Number(asked);
+    if (!Number.isFinite(offer) || !Number.isFinite(list) || list <= 0 || offer < 0) return null;
+    return Math.round((offer / list) * 100);
+  }
+
+  function channelLabel(key) {
+    var found = "";
+    SALE_CHANNELS.forEach(function (channel) {
+      if (channel.key === key) found = channel.label;
+    });
+    return found;
+  }
+
+  function formatWhen(value) {
+    if (!value) return "";
+    var date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(date);
+  }
+
+  function inLondonMonth(value, now) {
+    var when = new Date(value);
+    var clock = now ? new Date(now) : new Date();
+    if (Number.isNaN(when.getTime()) || Number.isNaN(clock.getTime())) return false;
+    var zone = { timeZone: "Europe/London", year: "numeric", month: "2-digit" };
+    return new Intl.DateTimeFormat("en-GB", zone).format(when)
+      === new Intl.DateTimeFormat("en-GB", zone).format(clock);
+  }
+
+  function mailtoWith(email, subject, body) {
+    var address = String(email || "").trim();
+    if (!address || /[\s<>"]/.test(address)) return "";
+    return "mailto:" + address
+      + "?subject=" + encodeURIComponent(subject || "")
+      + "&body=" + encodeURIComponent(body || "");
+  }
+
+  function offerContactMailto(offer) {
+    var title = (offer && offer.product_title) || "a piece";
+    var name = (offer && offer.name) || "";
+    var subject = "Your offer on " + title;
+    var body = "Hello " + name + ",\n\nThank you for your offer on \"" + title + "\".\n\n";
+    return mailtoWith(offer && offer.email, subject, body);
+  }
+
+  function counterMailto(offer, counterAmount) {
+    var title = (offer && offer.product_title) || "a piece";
+    var name = (offer && offer.name) || "";
+    var option = offerOptionLabel(offer && offer.option);
+    var subject = "Your offer on " + title;
+    var lines = [
+      "Hello " + name + ",",
+      "",
+      "Thank you for your offer of " + formatPrice(offer && offer.amount) + " for \"" + title + "\"" + (option ? " (" + option + ")" : "") + ".",
+      "",
+      "We can do " + formatPrice(counterAmount) + " for that option.",
+      "",
+      "If that suits you, reply to this email and we will set the piece aside.",
+      "",
+      "Cambridge Curio Cubbyhole"
+    ];
+    return mailtoWith(offer && offer.email, subject, lines.join("\n"));
+  }
+
   function missingPriceColumns(error) {
     if (!error) return false;
     var blob = String(error.message || "") + " " + String(error.details || "") + " " + String(error.hint || "");
@@ -435,6 +563,17 @@
     storedPrice: storedPrice,
     columnsWithPrices: columnsWithPrices,
     missingPriceColumns: missingPriceColumns,
+    SALE_CHANNELS: SALE_CHANNELS,
+    offerOptionLabel: offerOptionLabel,
+    offerChoices: offerChoices,
+    askedAmount: askedAmount,
+    preferredSaleOption: preferredSaleOption,
+    offerPercent: offerPercent,
+    channelLabel: channelLabel,
+    formatWhen: formatWhen,
+    inLondonMonth: inLondonMonth,
+    offerContactMailto: offerContactMailto,
+    counterMailto: counterMailto,
     parseSortOrder: parseSortOrder,
     safeImageUrl: safeImageUrl,
     isPublicProduct: isPublicProduct,
