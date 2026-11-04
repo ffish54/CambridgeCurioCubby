@@ -41,6 +41,25 @@ The script is safe to run again. It adds `price_delivered`, `price_item`, and `p
 
 The original `price` column stays. When you save a piece, the cabinet sets it to the delivery price if that box is filled in, and otherwise to the lowest price you offered.
 
+## Offers and recorded sales
+
+Customers can send an offer from a piece that is available or reserved. The cabinet lists those offers, and the sales you record, on the Notifications tab.
+
+1. Open **SQL Editor → New query**.
+2. Paste the whole of `supabase/shop-notifications.sql`.
+3. Choose **Run**.
+
+The script is safe to run again. It creates `offers` and `sales` if they are missing, replaces their policies, and does not alter `storage.objects`, storage buckets, or storage policies.
+
+What you should see:
+
+- Table `offers`. A visitor may insert one new offer and cannot read any row back. Only the admin user can read, update, or delete offers.
+- Table `sales`. Only the admin user can read or write it. `payment_ref` and `source` are empty for sales you type in. A later Stripe or Square webhook can fill them by inserting with the service role, which bypasses these policies.
+- On the shop, **Make an offer** on an available or reserved piece. Sold pieces do not show it.
+- In the cabinet, **Notifications**, with a count of offers still marked new.
+
+An offer stores the customer’s name, email address, phone number if they gave one, the amount, and any message, so you can reply. That is personal data. Say so wherever you describe what the shop keeps (the shop links the consent box to `privacy.html`). There is still no card payment on the site.
+
 ## 2. Confirm the bucket
 
 1. Open **Storage**.

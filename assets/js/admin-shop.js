@@ -7,6 +7,8 @@
   var journalDesk = document.getElementById("journal-desk");
   var tabJournal = document.getElementById("tab-journal");
   var tabShop = document.getElementById("tab-shop");
+  var tabNotifications = document.getElementById("tab-notifications");
+  var notificationsDesk = document.getElementById("notifications-desk");
   var subtitle = document.getElementById("desk-subtitle");
   var signOutButton = document.getElementById("sign-out");
 
@@ -74,38 +76,59 @@
     });
   }
 
+  function deskName(value) {
+    if (value === "shop") return "shop";
+    if (value === "notifications") return "notifications";
+    return "journal";
+  }
+
   function showDesk(next, options) {
     var settings = options || {};
+    var target = deskName(next);
     if (busy) return;
-    if (!settings.force && next !== desk) {
+    if (!settings.force && target !== desk) {
       var warning = "";
-      if (next === "shop" && window.curioJournalIsDirty && window.curioJournalIsDirty()) {
-        warning = "The journal desk has unsaved edits. Switch to the shop? Those edits stay until you leave this page.";
+      if (desk === "journal" && window.curioJournalIsDirty && window.curioJournalIsDirty()) {
+        warning = "The journal desk has unsaved edits. Switch desks? Those edits stay until you leave this page.";
       }
-      if (next === "journal" && isDirty()) {
-        warning = "The shop desk has unsaved edits. Switch to the journal? Those edits stay until you leave this page.";
+      if (desk === "shop" && isDirty()) {
+        warning = "The shop desk has unsaved edits. Switch desks? Those edits stay until you leave this page.";
       }
       if (warning && !window.confirm(warning)) return;
     }
 
-    desk = next === "shop" ? "shop" : "journal";
+    desk = target;
+    var journalOpen = desk === "journal";
     var shopOpen = desk === "shop";
-    journalDesk.classList.toggle("is-hidden", shopOpen);
-    journalDesk.hidden = shopOpen;
+    var notesOpen = desk === "notifications";
+    journalDesk.classList.toggle("is-hidden", !journalOpen);
+    journalDesk.hidden = !journalOpen;
     shopDesk.classList.toggle("is-hidden", !shopOpen);
     shopDesk.hidden = !shopOpen;
-    tabJournal.classList.toggle("is-active", !shopOpen);
+    if (notificationsDesk) {
+      notificationsDesk.classList.toggle("is-hidden", !notesOpen);
+      notificationsDesk.hidden = !notesOpen;
+    }
+    tabJournal.classList.toggle("is-active", journalOpen);
     tabShop.classList.toggle("is-active", shopOpen);
-    tabJournal.setAttribute("aria-selected", shopOpen ? "false" : "true");
+    if (tabNotifications) tabNotifications.classList.toggle("is-active", notesOpen);
+    tabJournal.setAttribute("aria-selected", journalOpen ? "true" : "false");
     tabShop.setAttribute("aria-selected", shopOpen ? "true" : "false");
-    if (subtitle) subtitle.textContent = shopOpen ? "Shop desk" : "Journal desk";
-    if (shopOpen && !settings.silent) {
-      editorHeading.focus();
+    if (tabNotifications) tabNotifications.setAttribute("aria-selected", notesOpen ? "true" : "false");
+    if (subtitle) {
+      subtitle.textContent = shopOpen ? "Shop desk" : notesOpen ? "Notifications" : "Journal desk";
     }
-    if (shopOpen && window.location.hash !== "#shop") {
-      history.replaceState(null, "", "admin.html#shop");
+    if (shopOpen && !settings.silent) editorHeading.focus();
+    if (notesOpen) {
+      var notesHeading = document.getElementById("notifications-heading");
+      if (notesHeading && !settings.silent) notesHeading.focus();
+      if (window.curioRefreshNotifications) window.curioRefreshNotifications();
     }
-    if (!shopOpen && window.location.hash === "#shop") {
+    var hash = shopOpen ? "#shop" : notesOpen ? "#notifications" : "";
+    if (hash && window.location.hash !== hash) {
+      history.replaceState(null, "", "admin.html" + hash);
+    }
+    if (!hash && (window.location.hash === "#shop" || window.location.hash === "#notifications")) {
       history.replaceState(null, "", "admin.html");
     }
   }
@@ -115,6 +138,7 @@
     var ready = await whenAdminReady();
     if (!ready) return;
     if (window.location.hash === "#shop") showDesk("shop", { force: true, silent: true });
+    else if (window.location.hash === "#notifications") showDesk("notifications", { force: true, silent: true });
     openNew({ force: true, silent: true });
     await loadProducts();
   }
@@ -122,6 +146,12 @@
   function bindEvents() {
     tabJournal.addEventListener("click", function () { showDesk("journal"); });
     tabShop.addEventListener("click", function () { showDesk("shop"); });
+    if (tabNotifications) {
+      tabNotifications.addEventListener("click", function () { showDesk("notifications"); });
+    }
+    window.addEventListener("curio-products-changed", function () {
+      loadProducts({ quiet: true });
+    });
     newButton.addEventListener("click", function () {
       openNew();
       focusEditor();
@@ -332,7 +362,10 @@
       : product.status;
     statusLabel.append(statusName, select);
 
-    actions.append(makeMini("Edit", "edit"), statusLabel, makeMini("Delete", "delete", "mini-button mini-danger"));
+    var controls = [makeMini("Edit", "edit"), statusLabel];
+    if (product.status === "sold") controls.push(makeMini("Record sale", "sale"));
+    controls.push(makeMini("Delete", "delete", "mini-button mini-danger"));
+    actions.append.apply(actions, controls);
     if (product.status !== "draft" && product.slug) {
       var view = document.createElement("a");
       view.className = "mini-link";
@@ -370,6 +403,10 @@
       }
       if (!confirmDiscard()) return;
       fillForm(product, { focus: true });
+      return;
+    }
+    if (action === "sale") {
+      if (window.curioPromptSale) window.curioPromptSale({ product: product, source: "admin" });
       return;
     }
     if (isDirty()) {
@@ -717,6 +754,9 @@
       if (willHide) setFormMessage("Saved as a draft. It is off the public shelf.", "ok");
       else if (status === "draft") setFormMessage("Draft saved.", "ok");
       else setFormMessage("Saved. This piece is on the public shelf as " + CurioShop.statusLabel(status).toLowerCase() + ".", "ok");
+      if (status === "sold" && !(existing && existing.status === "sold") && window.curioSuggestSale) {
+        window.curioSuggestSale(saved);
+      }
     } catch (error) {
       setFormMessage("Could not reach Supabase. Try again.", "error");
     } finally {
@@ -873,6 +913,10 @@
         fillForm(products.find(function (item) { return item.id === product.id; }) || result.data);
       }
       setListMessage("Status set to " + CurioShop.statusLabel(status).toLowerCase() + ".", "ok");
+      if (status === "sold" && window.curioSuggestSale) {
+        var soldPiece = products.find(function (item) { return item.id === product.id; }) || result.data;
+        window.curioSuggestSale(soldPiece);
+      }
     } catch (error) {
       setListMessage("Could not reach Supabase. Try again.", "error");
     } finally {
@@ -961,6 +1005,7 @@
     if (signOutButton) signOutButton.disabled = isBusy;
     if (tabJournal) tabJournal.disabled = isBusy;
     if (tabShop) tabShop.disabled = isBusy;
+    if (tabNotifications) tabNotifications.disabled = isBusy;
     if (!isBusy) renderImages();
   }
 

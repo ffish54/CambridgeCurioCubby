@@ -704,6 +704,182 @@ body.admin-dashboard {
   color: var(--navy);
 }
 
+.tab-badge {
+  display: inline-block;
+  min-width: 1.25em;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.desk-tab.is-active .tab-badge {
+  background: var(--navy);
+  color: var(--cream);
+}
+
+#notifications-desk.dash-main {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.notice-totals {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--gold);
+  background: #fffdf7;
+  color: var(--navy);
+}
+
+.notice-card.has-thumb {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.notice-thumb img {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid #c5b693;
+  background: #fffdf7;
+}
+
+.notice-card h3 a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.notice-message {
+  white-space: pre-wrap;
+}
+
+.notice-card.is-archived {
+  opacity: 0.72;
+}
+
+.notice-card time {
+  color: #6d624c;
+  font-size: 13px;
+}
+
+.pill-new,
+.pill-countered {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.pill-read {
+  border-color: #9a8660;
+}
+
+.pill-accepted {
+  border-color: #245c45;
+  background: #245c45;
+  color: #fffdf7;
+}
+
+.pill-declined {
+  border-color: #7a3030;
+  color: #7a3030;
+}
+
+.pill-archived {
+  border-color: #9a8660;
+  color: #6d624c;
+}
+
+.sale-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid var(--gold);
+  background: #fffdf7;
+  color: var(--navy);
+}
+
+.sale-suggest p {
+  flex: 1 1 220px;
+  margin: 0;
+}
+
+.cabinet-dialog {
+  width: min(520px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  padding: 0;
+  border: 1px solid var(--gold);
+  background: var(--cream);
+  color: var(--navy);
+}
+
+.cabinet-dialog::backdrop {
+  background: rgba(13, 27, 42, 0.72);
+}
+
+.cabinet-dialog form {
+  padding: 22px;
+  overflow: auto;
+  max-height: calc(100vh - 28px);
+}
+
+.cabinet-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.cabinet-dialog label {
+  display: block;
+  margin: 14px 0 6px;
+}
+
+.cabinet-dialog input[type="text"],
+.cabinet-dialog input[type="email"],
+.cabinet-dialog input[type="datetime-local"],
+.cabinet-dialog select,
+.cabinet-dialog textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #c5b693;
+  background: #fffdf7;
+  color: var(--navy);
+}
+
+.cabinet-dialog textarea {
+  resize: vertical;
+}
+
+.cabinet-dialog fieldset {
+  margin: 16px 0 0;
+  padding: 8px 12px 12px;
+  border: 1px solid #c5b693;
+}
+
+.cabinet-dialog fieldset label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.cabinet-dialog fieldset input {
+  width: auto;
+}
+
+.sale-piece-label {
+  margin: 0;
+  font-size: 18px;
+}
+
 .pill-available {
   border-color: #245c45;
   background: #245c45;

@@ -376,9 +376,17 @@ html.shop-reading .shop-read {
     color: #3c3226;
 }
 
+.piece-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 18px;
+}
+
 .piece-enquire {
     display: inline-block;
-    margin-top: 18px;
+    margin-top: 0;
     padding: 12px 18px;
     border: 1px solid #0d1b2a;
     background: #0d1b2a;
@@ -387,12 +395,216 @@ html.shop-reading .shop-read {
     font-size: 16px;
     letter-spacing: 0.8px;
     text-transform: uppercase;
+    cursor: pointer;
 }
 
 .piece-enquire:hover {
     background: var(--gold);
     border-color: var(--gold);
     color: #0d1b2a;
+}
+
+.piece-offer-open {
+    display: inline-block;
+    padding: 12px 18px;
+    border: 1px solid #0d1b2a;
+    background: transparent;
+    color: #0d1b2a;
+    font-family: var(--heading-font);
+    font-size: 16px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.piece-offer-open:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #0d1b2a;
+}
+
+.piece-offer {
+    position: relative;
+    margin-top: 16px;
+    padding: 16px 16px 18px;
+    border: 1px solid rgba(197, 161, 91, 0.75);
+    background: rgba(255, 253, 247, 0.78);
+}
+
+.piece-offer-heading {
+    margin: 0 0 6px;
+    font-family: var(--heading-font);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #0d1b2a;
+}
+
+.piece-offer-lead,
+.offer-status,
+.piece-offer-thanks {
+    margin: 0 0 12px;
+    font-family: var(--heading-font);
+    font-size: 17px;
+    font-style: italic;
+    line-height: 1.4;
+    color: #3c3226;
+}
+
+.piece-offer label,
+.offer-options-set legend {
+    display: block;
+    margin: 12px 0 6px;
+    font-family: var(--heading-font);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    color: #0d1b2a;
+}
+
+.piece-offer input[type="text"],
+.piece-offer input[type="email"],
+.piece-offer input[type="tel"],
+.piece-offer textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #c5b693;
+    background: #fffdf7;
+    color: #0d1b2a;
+    font-family: var(--body-font);
+    font-size: 15px;
+}
+
+.piece-offer textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.offer-optional {
+    color: #6b5c45;
+    font-style: italic;
+    letter-spacing: 0;
+}
+
+.offer-options-set {
+    margin: 14px 0 0;
+    padding: 8px 12px 10px;
+    border: 1px solid rgba(197, 161, 91, 0.65);
+}
+
+.offer-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.offer-options label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 16px;
+    letter-spacing: 0;
+}
+
+.offer-options input {
+    width: auto;
+    margin-top: 4px;
+}
+
+.offer-consent-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    margin-top: 14px;
+}
+
+.offer-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+}
+
+.offer-consent input {
+    width: auto;
+    margin-top: 4px;
+}
+
+.offer-privacy {
+    font-family: var(--heading-font);
+    font-size: 16px;
+    color: #7a6233;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.offer-status:empty {
+    display: none;
+}
+
+.offer-status.is-error {
+    color: #7a3030;
+    font-style: normal;
+}
+
+.piece-offer-thanks {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid rgba(197, 161, 91, 0.75);
+    background: rgba(255, 253, 247, 0.78);
+}
+
+.offer-honeypot {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.privacy-sheet {
+    width: min(720px, 92%);
+    margin: 36px auto 80px;
+    padding: clamp(18px, 3vw, 36px);
+    background: #f5efe2;
+    color: #241c14;
+    border: 1px solid var(--gold);
+}
+
+.privacy-sheet .eyebrow {
+    margin: 0 0 8px;
+    color: #7a6233;
+}
+
+.privacy-sheet h1 {
+    margin: 0 0 12px;
+    font-family: var(--heading-font);
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 500;
+    line-height: 0.95;
+    color: #0d1b2a;
+}
+
+.privacy-sheet h2 {
+    margin: 22px 0 8px;
+    font-family: var(--heading-font);
+    font-size: 26px;
+    font-weight: 500;
+    color: #0d1b2a;
+}
+
+.privacy-sheet p {
+    margin: 0 0 12px;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.privacy-sheet a {
+    color: #7a6233;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 .piece-story-heading {
