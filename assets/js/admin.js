@@ -88,6 +88,22 @@ function leave() {
   window.location.replace("admin-login.html");
 }
 
+function leaveCustomer() {
+  if (leaving) return;
+  leaving = true;
+  window.location.replace("account.html");
+}
+
+function sendAway(session) {
+  if (session && session.user && !isAdmin(session.user)) {
+    gateMessage.textContent = "This page is for the shop account only. Sending you to your account…";
+    leaveCustomer();
+    return;
+  }
+  gateMessage.textContent = "Sending you back to sign in…";
+  leave();
+}
+
 async function init() {
   gateMessage.textContent = "Checking the cabinet lock…";
 
@@ -121,27 +137,18 @@ async function requireAdmin() {
   }
 
   if (!session || !isAdmin(session.user)) {
-    gateMessage.textContent = "Sending you back to sign in…";
-    if (session) {
-      try {
-        await supabaseClient.auth.signOut();
-      } catch (error) {
-        // Still leave. A rejected sign-out should not keep the desk open.
-      }
-    }
-    leave();
+    sendAway(session);
     return null;
   }
 
   supabaseClient.auth.onAuthStateChange((event, nextSession) => {
-    if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
-      if (event === "TOKEN_REFRESHED" && nextSession && !isAdmin(nextSession.user)) {
-        leave();
-      }
+    if (event === "INITIAL_SESSION") return;
+    if (!nextSession || event === "SIGNED_OUT") {
+      leave();
       return;
     }
-    if (event === "SIGNED_OUT" || !nextSession || !isAdmin(nextSession.user)) {
-      leave();
+    if (!isAdmin(nextSession.user)) {
+      leaveCustomer();
     }
   });
 

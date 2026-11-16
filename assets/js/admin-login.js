@@ -5,7 +5,9 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const submitButton = loginForm.querySelector("button[type='submit']");
 
-const RESET_REDIRECT_URL = "https://ffish54.github.io/CambridgeCurioCubby/reset-password.html";
+const RESET_REDIRECT_URL = typeof ADMIN_RESET_URL === "string"
+  ? ADMIN_RESET_URL
+  : "https://thecuriocubbyhole.com/reset-password.html";
 
 function isAdminUser(user) {
   return Boolean(user && String(user.id).toLowerCase() === String(ADMIN_USER_ID).toLowerCase());
@@ -40,6 +42,11 @@ supabaseClient.auth.getSession().then(({ data }) => {
   if (data.session && isAdminUser(data.session.user)) {
     setLoginMessage("Opening the cabinet…");
     window.location.replace("admin.html");
+    return;
+  }
+
+  if (data.session && data.session.user) {
+    window.location.replace("account.html");
     return;
   }
 
@@ -78,10 +85,7 @@ loginForm.addEventListener("submit", async (event) => {
   }
 
   if (!isAdminUser(data.user)) {
-    await supabaseClient.auth.signOut();
-    setLoginMessage("This account is not authorised.", "error");
-    submitButton.disabled = false;
-    forgotButton.disabled = false;
+    window.location.replace("account.html");
     return;
   }
 

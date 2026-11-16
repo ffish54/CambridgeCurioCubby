@@ -215,6 +215,46 @@
     return "";
   }
 
+  function reservationExpired(product, now) {
+    if (!product || product.status !== "reserved" || !product.reserved_until) return false;
+    var until = new Date(product.reserved_until);
+    var clock = now ? new Date(now) : new Date();
+    if (Number.isNaN(until.getTime()) || Number.isNaN(clock.getTime())) return false;
+    return until.getTime() <= clock.getTime();
+  }
+
+  function displayStatus(product, now) {
+    if (!product) return "";
+    if (reservationExpired(product, now)) return "available";
+    return product.status || "";
+  }
+
+  function presentProduct(product, now) {
+    if (!product) return product;
+    var shown = displayStatus(product, now);
+    if (shown === product.status) return product;
+    var copy = {};
+    Object.keys(product).forEach(function (key) {
+      copy[key] = product[key];
+    });
+    copy.status = shown;
+    copy.hold_expired = true;
+    return copy;
+  }
+
+  function columnsWithHold(columns) {
+    return String(columns || "") + ",reserved_until";
+  }
+
+  function missingHoldColumn(error) {
+    if (!error) return false;
+    var blob = String(error.message || "") + " " + String(error.details || "") + " " + String(error.hint || "");
+    if (!/reserved_until/.test(blob)) return false;
+    var code = String(error.code || "");
+    if (code === "42703" || code === "PGRST204") return true;
+    return /schema cache|does not exist|could not find/i.test(blob);
+  }
+
   function enquireMailto(product, pageUrl) {
     var title = (product && product.title) || "a piece";
     var subject = "Enquiry: " + title;
@@ -532,6 +572,7 @@
       "We can do " + formatPrice(counterAmount) + " for that option.",
       "",
       "If that suits you, reply to this email and we will set the piece aside.",
+      "If you have an account at thecuriocubbyhole.com, you can accept or decline this from your account page.",
       "",
       "Cambridge Curio Cubbyhole"
     ];
@@ -585,6 +626,11 @@
     coverUrl: coverUrl,
     galleryUrls: galleryUrls,
     statusLabel: statusLabel,
+    reservationExpired: reservationExpired,
+    displayStatus: displayStatus,
+    presentProduct: presentProduct,
+    columnsWithHold: columnsWithHold,
+    missingHoldColumn: missingHoldColumn,
     enquireMailto: enquireMailto,
     shopUrl: shopUrl,
     validateImageFile: validateImageFile

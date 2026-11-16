@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+      (function () {
+        var hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+        var queryParams = new URLSearchParams(window.location.search);
+        var type = queryParams.get("type") || hashParams.get("type") || "";
+        if (type === "recovery") {
+          window.location.replace("account-reset.html" + window.location.search + window.location.hash);
+        }
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your Cambridge Curio Cubbyhole account: profile, offers, and your data.">
+    <title>Account | Cambridge Curio Cubbyhole</title>
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <link rel="stylesheet" href="assets/css/account.css">
+    <link rel="stylesheet" href="assets/css/mobile-nav.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body class="shop-page">
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+            </a>
+            <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+            <nav class="main-nav" id="site-nav" aria-label="Main navigation">
+                <a href="index.html">The Cubbyhole</a>
+                <a href="shop.html">Shop</a>
+                <a href="our_story.html">Our Story</a>
+                <a href="journal.html">Journal</a>
+                <a href="contact_us.html">Contact</a>
+                <a href="account.html" id="account-nav" data-account-nav aria-current="page">Account</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="account-main">
+        <p id="account-gate" class="account-sheet" role="status">
+            <span id="account-gate-message">Checking your account…</span>
+        </p>
+
+        <div id="account-app" hidden>
+            <section class="account-sheet">
+                <p class="eyebrow">YOUR ACCOUNT</p>
+                <h1>Your details</h1>
+                <p>Signed in as <strong id="account-email"></strong>.</p>
+                <form id="profile-form" class="account-form" novalidate>
+                    <label for="display-name">Your name</label>
+                    <input id="display-name" name="name" type="text" maxlength="120" autocomplete="name">
+                    <label for="phone">Phone <span class="offer-optional">(optional)</span></label>
+                    <input id="phone" name="phone" type="tel" maxlength="40" autocomplete="tel">
+                    <label class="account-check" for="marketing-consent">
+                        <input id="marketing-consent" name="marketing" type="checkbox">
+                        <span>Email me occasionally about new pieces. Leave this unticked and we will not send shop news. You can change it whenever you like.</span>
+                    </label>
+                    <div class="account-actions">
+                        <button type="submit" class="account-button">Save details</button>
+                        <button type="button" id="sign-out" class="account-button-quiet">Sign out</button>
+                    </div>
+                    <p id="profile-message" class="account-status" role="status" aria-live="polite"></p>
+                </form>
+            </section>
+
+            <section class="account-sheet">
+                <h2>Password</h2>
+                <form id="password-form" class="account-form" novalidate>
+                    <label for="current-password">Current password</label>
+                    <input id="current-password" name="current-password" type="password" autocomplete="current-password">
+                    <label for="new-password">New password</label>
+                    <input id="new-password" name="new-password" type="password" minlength="8" autocomplete="new-password">
+                    <label for="confirm-password">Confirm new password</label>
+                    <input id="confirm-password" name="confirm-password" type="password" minlength="8" autocomplete="new-password">
+                    <p class="account-lead">At least 8 characters. <a href="sign-in.html">Forgotten it?</a></p>
+                    <div class="account-actions">
+                        <button type="submit" class="account-button">Change password</button>
+                    </div>
+                    <p id="password-message" class="account-status" role="status" aria-live="polite"></p>
+                </form>
+            </section>
+
+            <section class="account-sheet">
+                <h2>My offers</h2>
+                <p id="offer-empty" hidden>You have not made an offer from this account yet. Offers you sent before you had an account appear here when the email matches.</p>
+                <ul id="offer-list" class="account-offers"></ul>
+                <p id="offer-message" class="account-status" role="status" aria-live="polite"></p>
+            </section>
+
+            <section class="account-sheet">
+                <h2>Your data</h2>
+                <p>You can download a copy of your profile and offers, or delete the account. Deleting removes your sign-in and profile. Offers you sent are kept so the shop has a record of the enquiry, but your name, email, phone, and message are removed. Accounts with no sign-in for a year are removed in the same way.</p>
+                <p>More is on the <a href="privacy.html">privacy page</a>. You can also write to <a href="mailto:curiocubbyhole@gmail.com">curiocubbyhole@gmail.com</a>.</p>
+                <div class="account-actions">
+                    <button type="button" id="export-data" class="account-button">Export my data</button>
+                </div>
+                <form id="delete-form" class="account-form" onsubmit="return false;">
+                    <label for="delete-confirm">Type DELETE to confirm</label>
+                    <input id="delete-confirm" name="delete-confirm" type="text" autocomplete="off" spellcheck="false">
+                    <div class="account-actions">
+                        <button type="button" id="delete-account" class="account-button-danger">Delete my account</button>
+                    </div>
+                </form>
+                <p id="data-message" class="account-status" role="status" aria-live="polite"></p>
+            </section>
+        </div>
+        <noscript><p class="account-sheet">JavaScript is required to open your account.</p></noscript>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">
+            <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+        </div>
+        <div class="footer-message">
+            <p>Every object has a story.</p>
+            <span>Come and find yours.</span>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span><a href="privacy.html">Privacy</a></span>
+            <span>Vintage &amp; preloved curiosities</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/shop-catalog.js"></script>
+    <script src="assets/js/account.js"></script>
+    <script src="assets/js/account-nav.js"></script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>

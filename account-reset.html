@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Choose a new password for your Cambridge Curio Cubbyhole account.">
+    <title>New password | Cambridge Curio Cubbyhole</title>
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <link rel="stylesheet" href="assets/css/account.css">
+    <link rel="stylesheet" href="assets/css/mobile-nav.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body class="shop-page">
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+            </a>
+            <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+            <nav class="main-nav" id="site-nav" aria-label="Main navigation">
+                <a href="index.html">The Cubbyhole</a>
+                <a href="shop.html">Shop</a>
+                <a href="our_story.html">Our Story</a>
+                <a href="journal.html">Journal</a>
+                <a href="contact_us.html">Contact</a>
+                <a href="sign-in.html" id="account-nav" data-account-nav>Sign in</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="account-main">
+        <section class="account-sheet">
+            <p class="eyebrow">YOUR ACCOUNT</p>
+            <h1>New password</h1>
+            <p id="reset-intro">Checking your reset link…</p>
+            <form id="reset-form" class="account-form" hidden novalidate>
+                <label class="visually-hidden" for="username">Email</label>
+                <input id="username" name="username" type="email" autocomplete="username" class="visually-hidden">
+                <label for="password">New password</label>
+                <input id="password" name="new-password" type="password" required minlength="8" autocomplete="new-password">
+                <label for="confirm-password">Confirm new password</label>
+                <input id="confirm-password" name="confirm-password" type="password" required minlength="8" autocomplete="new-password">
+                <p class="account-lead">At least 8 characters.</p>
+                <div class="account-actions">
+                    <button type="submit" id="save-password" class="account-button">Save new password</button>
+                </div>
+            </form>
+            <p id="reset-message" class="account-status" role="status" aria-live="polite"></p>
+            <p class="account-links">
+                <a id="request-again" href="sign-in.html" hidden>Request a new reset link</a>
+                <a href="sign-in.html">Return to sign in</a>
+            </p>
+            <noscript><p>JavaScript is required to open a reset link.</p></noscript>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">
+            <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+        </div>
+        <div class="footer-message">
+            <p>Every object has a story.</p>
+            <span>Come and find yours.</span>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span><a href="privacy.html">Privacy</a></span>
+            <span>Vintage &amp; preloved curiosities</span>
+        </div>
+    </footer>
+
+    <script>
+      (function () {
+        var hash = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+        var query = new URLSearchParams(window.location.search);
+        function pick(key) {
+          return query.get(key) || hash.get(key) || "";
+        }
+        var previousAccessToken = "";
+        try {
+          var stored = JSON.parse(window.localStorage.getItem("sb-etiwnwqovlbcyxfpmpsv-auth-token") || "null");
+          previousAccessToken = (stored && stored.access_token) || "";
+        } catch (error) {
+          previousAccessToken = "";
+        }
+        window.__authCallback = {
+          type: pick("type"),
+          error: pick("error"),
+          errorCode: pick("error_code"),
+          errorDescription: pick("error_description"),
+          code: query.get("code") || "",
+          tokenHash: pick("token_hash"),
+          accessToken: pick("access_token"),
+          refreshToken: pick("refresh_token"),
+          previousAccessToken: previousAccessToken
+        };
+      })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/account-reset.js"></script>
+    <script src="assets/js/account-nav.js"></script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>

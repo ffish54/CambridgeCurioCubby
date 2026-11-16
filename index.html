@@ -8,8 +8,13 @@
         var hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
         var queryParams = new URLSearchParams(window.location.search);
         var type = queryParams.get("type") || hashParams.get("type");
-        if (type !== "recovery") return;
-        window.location.replace("reset-password.html" + window.location.search + window.location.hash);
+        if (type === "recovery") {
+          window.location.replace("reset-password.html" + window.location.search + window.location.hash);
+          return;
+        }
+        if (type === "signup" || type === "magiclink" || type === "email" || type === "invite") {
+          window.location.replace("account.html" + window.location.search + window.location.hash);
+        }
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,6 +46,7 @@
                 <a href="our_story.html">Our Story</a>
                 <a href="journal.html">Journal</a>
                 <a href="contact_us.html">Contact</a>
+                <a href="sign-in.html" id="account-nav" data-account-nav>Sign in</a>
             </nav>
         </div>
     </header>
@@ -240,6 +246,7 @@
 
         <div class="footer-bottom">
             <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span><a href="privacy.html">Privacy</a></span>
             <span>Vintage &amp; preloved curiosities</span>
         </div>
 
@@ -250,6 +257,7 @@
     <script src="assets/js/shop-catalog.js"></script>
     <script src="assets/js/home-news.js"></script>
     <script src="assets/js/home-shop.js"></script>
+    <script src="assets/js/account-nav.js"></script>
     <script src="assets/js/nav.js"></script>
 
 </body>

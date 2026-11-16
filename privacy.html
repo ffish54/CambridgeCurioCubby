@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="How Cambridge Curio Cubbyhole uses the name and email you give us when you make an offer on a piece.">
+    <meta name="description" content="How Cambridge Curio Cubbyhole uses your account, offers, and email. Marketing is only sent with your consent.">
     <title>Privacy | Cambridge Curio Cubbyhole</title>
     <script>document.documentElement.classList.add("js");</script>
     <link rel="stylesheet" href="assets/css/style.css">
@@ -27,6 +27,7 @@
                 <a href="our_story.html">Our Story</a>
                 <a href="journal.html">Journal</a>
                 <a href="contact_us.html">Contact</a>
+                <a href="sign-in.html" id="account-nav" data-account-nav>Sign in</a>
             </nav>
         </div>
     </header>
@@ -35,17 +36,27 @@
         <article class="privacy-sheet">
             <p class="eyebrow">PRIVACY</p>
             <h1>Your details</h1>
-            <p>Cambridge Curio Cubbyhole is a family shop in Wisbech. This page says what we keep when you make an offer on a piece, and why.</p>
+            <p>Cambridge Curio Cubbyhole is a family shop in Wisbech. This page says what we keep when you make an offer, when you create an account, and when you ask us to write to you. We do not sell your details on.</p>
+
+            <h2>Accounts</h2>
+            <p>If you create an account, we keep your email address and a password with our sign-in service (Supabase). We also keep the name you give us, a phone number if you add one, and whether you asked to hear about new pieces. The password is stored by the sign-in service, not on this website. You confirm the email address before the account opens.</p>
+            <p>From your account page you can <strong>export</strong> a file of your profile and offers, and you can <strong>delete</strong> the account. Deleting removes your sign-in and profile. Offers you sent are kept so we still have a record of the enquiry, but your name, email, phone, and message are removed from them.</p>
+            <p>If an account has not been signed in to for a year, we delete it in the same way. The year is counted from the last sign-in, or from the day the account was created if it was never signed in to.</p>
 
             <h2>Offers</h2>
-            <p>If you use Make an offer on a piece, we store your name, your email, your phone number if you give one, the piece, the option you chose, the amount, and any message. We keep them so we can reply about that offer. We do not show offers on the public shop, and we do not sell the details on.</p>
+            <p>If you use Make an offer on a piece, we store your name, your email, your phone number if you give one, the piece, the option you chose, the amount, and any message. We keep them so we can reply about that offer. We do not show offers on the public shop.</p>
+            <p>You can send an offer without an account. If you later create an account with the same confirmed email, those earlier offers can appear under My offers. While you are signed in, a new offer is saved to that account.</p>
+            <p>If we make a counter-offer, you can accept or decline it from your account. Accepting holds the piece for three days. If it is not paid and marked sold in that time, it goes back on the shelf.</p>
             <p>The website does not take payment. An accepted offer is settled with us directly, by the arrangement we write back about.</p>
+
+            <h2>Shop news</h2>
+            <p>We only send emails about new pieces if you tick the box that asks for them. That box is off unless you choose it, on the sign-up page and on your account. This follows the Privacy and Electronic Communications Regulations (PECR): marketing email needs your consent. Messages about an offer you sent are not marketing. They are replies about that offer. You can turn shop news off at any time on your account page.</p>
 
             <h2>Enquiries</h2>
             <p>Enquire about this piece opens an email in your own mail program to <a href="mailto:curiocubbyhole@gmail.com">curiocubbyhole@gmail.com</a>. That message is not stored by the website.</p>
 
             <h2>Asking about your details</h2>
-            <p>Write to <a href="mailto:curiocubbyhole@gmail.com">curiocubbyhole@gmail.com</a> if you would like a copy of an offer you sent, or if you would like us to delete it.</p>
+            <p>Use Export my data and Delete my account on <a href="account.html">your account</a>, or write to <a href="mailto:curiocubbyhole@gmail.com">curiocubbyhole@gmail.com</a> if you would like a copy of an offer you sent, or if you would like us to delete it.</p>
             <p><a href="shop.html">Return to the shop</a></p>
         </article>
     </main>
@@ -60,10 +71,14 @@
         </div>
         <div class="footer-bottom">
             <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span><a href="privacy.html">Privacy</a></span>
             <span>Vintage &amp; preloved curiosities</span>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/account-nav.js"></script>
     <script src="assets/js/nav.js"></script>
 </body>
 </html>

@@ -227,11 +227,21 @@
   }
 
   async function selectColumns(build) {
-    var result = await build(CurioShop.columnsWithPrices(LIST_COLUMNS));
+    var withPrices = CurioShop.columnsWithPrices(LIST_COLUMNS);
+    var result = await build(CurioShop.columnsWithHold(withPrices));
+    if (result && result.error && CurioShop.missingHoldColumn(result.error)) {
+      result = await build(withPrices);
+    }
     if (result && result.error && CurioShop.missingPriceColumns(result.error)) {
       result = await build(LIST_COLUMNS);
     }
     return result;
+  }
+
+  function forShelf(rows) {
+    return (rows || []).map(function (product) {
+      return CurioShop.presentProduct(product);
+    }).filter(CurioShop.isPublicProduct);
   }
 
   async function loadList() {
@@ -256,7 +266,7 @@
 
       if (result.error) throw result.error;
 
-      var listed = CurioShop.filterShelf(result.data || [], {
+      var listed = CurioShop.filterShelf(forShelf(result.data), {
         category: route.category,
         query: route.q,
         hideSold: false
@@ -443,7 +453,10 @@
     var note = document.getElementById("piece-note");
     if (product.status === "reserved") {
       note.hidden = false;
-      note.textContent = "Reserved. This piece is being held. You can still make an offer, or enquire if you would like to know whether it comes free.";
+      var until = product.reserved_until ? CurioShop.formatWhen(product.reserved_until) : "";
+      note.textContent = until
+        ? "Reserved until " + until + ". This piece is being held. You can still make an offer, or enquire if you would like to know whether it comes free."
+        : "Reserved. This piece is being held. You can still make an offer, or enquire if you would like to know whether it comes free.";
     } else if (product.status === "sold") {
       note.hidden = false;
       note.textContent = "Sold. This piece has found a home. You are welcome to ask if something similar turns up.";
@@ -509,6 +522,8 @@
     line.classList.toggle("is-error", kind === "error");
   }
 
+  var offerSavedToAccount = false;
+
   function showOfferThanks() {
     var form = document.getElementById("piece-offer");
     var open = document.getElementById("piece-offer-open");
@@ -517,7 +532,9 @@
     if (open) open.hidden = true;
     if (thanks) {
       thanks.hidden = false;
-      thanks.textContent = "Thank you. We have your offer and will be in touch by email if we can accept it.";
+      thanks.textContent = offerSavedToAccount
+        ? "Thank you. We have your offer. You can follow it from your account, and we will email you if we can accept it."
+        : "Thank you. We have your offer and will be in touch by email if we can accept it.";
     }
   }
 
@@ -648,7 +665,9 @@
     setOfferStatus("Sending your offer…");
 
     try {
-      var result = await publicClient.from("offers").insert({
+      var session = await signedInSession();
+      var client = session ? supabaseClient : publicClient;
+      var payload = {
         product_id: readingProduct.id,
         product_title: String(readingProduct.title || "Untitled piece").trim().slice(0, 200),
         name: name,
@@ -658,7 +677,14 @@
         option: option,
         message: message || null,
         status: "new"
-      });
+      };
+      if (session && session.user && session.user.id) payload.user_id = session.user.id;
+      offerSavedToAccount = Boolean(session && session.user);
+      var result = await client.from("offers").insert(payload);
+      if (result.error && payload.user_id && /user_id/.test(String(result.error.message || "") + String(result.error.details || ""))) {
+        delete payload.user_id;
+        result = await client.from("offers").insert(payload);
+      }
       if (result.error) {
         setOfferStatus(friendlyOfferError(result.error), "error");
         return;
@@ -673,6 +699,49 @@
     }
   }
 
+  async function signedInSession() {
+    try {
+      if (typeof supabaseClient === "undefined" || !supabaseClient || !supabaseClient.auth) return null;
+      var result = await supabaseClient.auth.getSession();
+      return (result.data && result.data.session) || null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async function prefillOfferFromAccount() {
+    var note = document.getElementById("offer-account-note");
+    var session = await signedInSession();
+    if (!session || !session.user) {
+      if (note) note.hidden = true;
+      return;
+    }
+    if (note) {
+      note.hidden = false;
+      note.textContent = "You are signed in, so this offer is saved to your account.";
+    }
+    var email = document.getElementById("offer-email");
+    var name = document.getElementById("offer-name");
+    var phone = document.getElementById("offer-phone");
+    if (email && !email.value && session.user.email) email.value = session.user.email;
+    var metaName = session.user.user_metadata && session.user.user_metadata.display_name;
+    if (name && !name.value && metaName) name.value = String(metaName);
+    try {
+      var profile = await supabaseClient
+        .from("profiles")
+        .select("display_name, phone")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      if (profile && profile.data) {
+        if (name && !name.value && profile.data.display_name) name.value = profile.data.display_name;
+        if (phone && !phone.value && profile.data.phone) phone.value = profile.data.phone;
+      }
+    } catch (error) {
+      /* The offer can still be sent without the profile. */
+    }
+    if (name && !name.value) name.focus();
+  }
+
   function bindOfferForm() {
     var open = document.getElementById("piece-offer-open");
     var form = document.getElementById("piece-offer");
@@ -683,8 +752,9 @@
       form.hidden = false;
       open.hidden = true;
       setOfferStatus("");
+      prefillOfferFromAccount();
       var name = document.getElementById("offer-name");
-      if (name) name.focus();
+      if (name && !name.value) name.focus();
     });
     if (close) {
       close.addEventListener("click", function () {
@@ -724,11 +794,12 @@
       });
 
       if (result.error) throw result.error;
-      if (!CurioShop.isPublicProduct(result.data) || result.data.slug !== slug) {
+      var piece = CurioShop.presentProduct(result.data);
+      if (!CurioShop.isPublicProduct(piece) || piece.slug !== slug) {
         showMissing();
         return;
       }
-      renderEntry(result.data);
+      renderEntry(piece);
     } catch (error) {
       document.documentElement.classList.remove("shop-reading");
       if (browse) browse.hidden = false;
