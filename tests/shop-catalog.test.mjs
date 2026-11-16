@@ -369,4 +369,11 @@ assert.match(privacy, /curiocubbyhole@gmail\.com/);
 assert.doesNotMatch(privacy, /header-icons/);
 assert.doesNotMatch(privacy, /href="\//);
 
+assert.equal(shop.displayStatus({ status: "reserved", reserved_until: "2020-01-01T00:00:00Z" }, "2026-01-01T00:00:00Z"), "available");
+assert.equal(shop.displayStatus({ status: "reserved", reserved_until: "2027-01-01T00:00:00Z" }, "2026-01-01T00:00:00Z"), "reserved");
+assert.equal(shop.displayStatus({ status: "reserved" }, "2026-01-01T00:00:00Z"), "reserved");
+assert.equal(shop.displayStatus({ status: "sold", reserved_until: "2020-01-01T00:00:00Z" }, "2026-01-01T00:00:00Z"), "sold");
+assert.equal(shop.presentProduct({ status: "reserved", reserved_until: "2020-01-01T00:00:00Z", title: "Bell" }, "2026-01-01T00:00:00Z").status, "available");
+assert.equal(shop.presentProduct({ status: "available", title: "Bell" }).title, "Bell");
+
 console.log("shop catalog tests passed");

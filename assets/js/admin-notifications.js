@@ -673,8 +673,16 @@
         var nextStatus = selected && selected.value === "reserved" ? "reserved" : "sold";
         var updated = await supabaseClient
           .from("products")
-          .update({ status: nextStatus, updated_at: new Date().toISOString() })
+          .update(nextStatus === "sold"
+            ? { status: nextStatus, reserved_until: null, updated_at: new Date().toISOString() }
+            : { status: nextStatus, updated_at: new Date().toISOString() })
           .eq("id", product.id);
+        if (updated.error && nextStatus === "sold" && window.CurioShop && CurioShop.missingHoldColumn(updated.error)) {
+          updated = await supabaseClient
+            .from("products")
+            .update({ status: nextStatus, updated_at: new Date().toISOString() })
+            .eq("id", product.id);
+        }
         if (updated.error) warnings.push("The sale is recorded, but the piece status did not change.");
         else window.dispatchEvent(new CustomEvent("curio-products-changed"));
       }

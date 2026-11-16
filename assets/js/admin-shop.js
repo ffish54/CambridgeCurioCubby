@@ -337,6 +337,16 @@
     if (price) bits.push(price);
     var when = formatWhen(product.updated_at || product.created_at);
     if (when) bits.push("Updated " + when);
+    if (product.status === "reserved" && product.reserved_until) {
+      var heldUntil = new Date(product.reserved_until);
+      if (!Number.isNaN(heldUntil.getTime()) && heldUntil.getTime() <= Date.now()) {
+        bits.push("Hold ended " + formatWhen(product.reserved_until));
+      } else {
+        bits.push("Held until " + formatWhen(product.reserved_until));
+      }
+    } else if (product.status === "reserved") {
+      bits.push("Held with no automatic release");
+    }
     details.textContent = bits.join(" · ");
     item.append(details);
 
@@ -363,6 +373,11 @@
     statusLabel.append(statusName, select);
 
     var controls = [makeMini("Edit", "edit"), statusLabel];
+    if (product.status === "reserved") {
+      controls.push(makeMini("Extend hold", "extend"));
+      controls.push(makeMini("Release", "release"));
+      controls.push(makeMini("Mark sold", "sold"));
+    }
     if (product.status === "sold") controls.push(makeMini("Record sale", "sale"));
     controls.push(makeMini("Delete", "delete", "mini-button mini-danger"));
     actions.append.apply(actions, controls);
@@ -407,6 +422,10 @@
     }
     if (action === "sale") {
       if (window.curioPromptSale) window.curioPromptSale({ product: product, source: "admin" });
+      return;
+    }
+    if (action === "extend" || action === "release" || action === "sold") {
+      holdAction(action, product);
       return;
     }
     if (isDirty()) {
@@ -738,6 +757,13 @@
         ? supabaseClient.from("products").update(payload).eq("id", existing.id)
         : supabaseClient.from("products").insert(payload);
       var result = await query.select("*").single();
+      if (result.error && payload.reserved_until === null && window.CurioShop && CurioShop.missingHoldColumn(result.error)) {
+        delete payload.reserved_until;
+        query = existing
+          ? supabaseClient.from("products").update(payload).eq("id", existing.id)
+          : supabaseClient.from("products").insert(payload);
+        result = await query.select("*").single();
+      }
       if (result.error) {
         setFormMessage(friendlyError(result.error), "error");
         return;
@@ -842,7 +868,7 @@
     if (cleanCover && cleanImages.indexOf(cleanCover) === -1) cleanCover = cleanImages[0] || "";
     if (!cleanCover) cleanCover = cleanImages[0] || "";
 
-    return {
+    var payload = {
       title: title,
       slug: slug,
       category: category,
@@ -862,6 +888,8 @@
       cover_image: cleanCover || null,
       updated_at: new Date().toISOString()
     };
+    if (status !== "reserved") payload.reserved_until = null;
+    return payload;
   }
 
   function blankToNull(value) {
@@ -892,15 +920,26 @@
     setListMessage("Updating status…");
 
     try {
+      var patch = {
+        status: status,
+        updated_at: new Date().toISOString()
+      };
+      if (status !== "reserved") patch.reserved_until = null;
       var result = await supabaseClient
         .from("products")
-        .update({
-          status: status,
-          updated_at: new Date().toISOString()
-        })
+        .update(patch)
         .eq("id", product.id)
         .select("*")
         .single();
+      if (result.error && patch.reserved_until === null && window.CurioShop && CurioShop.missingHoldColumn(result.error)) {
+        delete patch.reserved_until;
+        result = await supabaseClient
+          .from("products")
+          .update(patch)
+          .eq("id", product.id)
+          .select("*")
+          .single();
+      }
 
       if (result.error) {
         setListMessage(friendlyError(result.error), "error");
@@ -914,6 +953,80 @@
       }
       setListMessage("Status set to " + CurioShop.statusLabel(status).toLowerCase() + ".", "ok");
       if (status === "sold" && window.curioSuggestSale) {
+        var soldPiece = products.find(function (item) { return item.id === product.id; }) || result.data;
+        window.curioSuggestSale(soldPiece);
+      }
+    } catch (error) {
+      setListMessage("Could not reach Supabase. Try again.", "error");
+    } finally {
+      busy = false;
+      setBusy(false);
+    }
+  }
+
+  function holdUntil(product) {
+    var now = Date.now();
+    var base = now;
+    if (product && product.reserved_until) {
+      var until = new Date(product.reserved_until).getTime();
+      if (!Number.isNaN(until) && until > base) base = until;
+    }
+    return new Date(base + (3 * 24 * 60 * 60 * 1000)).toISOString();
+  }
+
+  async function holdAction(action, product) {
+    if (busy || !product) return;
+    var title = product.title || "this piece";
+    var patch = { updated_at: new Date().toISOString() };
+    var okText = "";
+    var markSold = false;
+
+    if (action === "extend") {
+      if (!window.confirm("Extend the hold on \"" + title + "\" by 3 days?")) return;
+      patch.status = "reserved";
+      patch.reserved_until = holdUntil(product);
+      okText = "Hold extended by 3 days.";
+    } else if (action === "release") {
+      if (!window.confirm("Release the hold on \"" + title + "\"? It goes back to Available.")) return;
+      patch.status = "available";
+      patch.reserved_until = null;
+      okText = "Hold released. The piece is available.";
+    } else if (action === "sold") {
+      if (!window.confirm("Mark \"" + title + "\" as sold?")) return;
+      patch.status = "sold";
+      patch.reserved_until = null;
+      okText = "Marked as sold.";
+      markSold = true;
+    } else {
+      return;
+    }
+
+    if (isDirty()) {
+      if (!window.confirm("You have unsaved edits in the form. Continue and discard them?")) return;
+      discardFormEdits();
+    }
+
+    busy = true;
+    setBusy(true);
+    setListMessage("Updating the hold…");
+
+    try {
+      var result = await supabaseClient
+        .from("products")
+        .update(patch)
+        .eq("id", product.id)
+        .select("*")
+        .single();
+      if (result.error) {
+        setListMessage(friendlyError(result.error), "error");
+        return;
+      }
+      await loadProducts({ quiet: true });
+      if (editingId === product.id) {
+        fillForm(products.find(function (item) { return item.id === product.id; }) || result.data);
+      }
+      setListMessage(okText, "ok");
+      if (markSold && window.curioSuggestSale) {
         var soldPiece = products.find(function (item) { return item.id === product.id; }) || result.data;
         window.curioSuggestSale(soldPiece);
       }
@@ -1080,6 +1193,9 @@
     }
     if (code === "42501" || /row-level security/i.test(message)) {
       return "Supabase refused this change. The signed-in account needs permission to manage products.";
+    }
+    if (window.CurioShop && CurioShop.missingHoldColumn(error)) {
+      return "Holds are not in Supabase yet. Run supabase/customer-accounts.sql in the SQL editor, then try again.";
     }
     if (code === "PGRST116") {
       return "The change did not return a row. Check that this admin account can read products.";

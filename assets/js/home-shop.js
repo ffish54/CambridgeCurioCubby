@@ -137,10 +137,19 @@
     try {
       var result = await client
         .from("products")
-        .select(CurioShop.columnsWithPrices(LIST_COLUMNS))
+        .select(CurioShop.columnsWithHold(CurioShop.columnsWithPrices(LIST_COLUMNS)))
         .in("status", CurioShop.PUBLIC_STATUSES)
         .order("created_at", { ascending: false })
         .limit(LIMIT);
+
+      if (result && result.error && CurioShop.missingHoldColumn(result.error)) {
+        result = await client
+          .from("products")
+          .select(CurioShop.columnsWithPrices(LIST_COLUMNS))
+          .in("status", CurioShop.PUBLIC_STATUSES)
+          .order("created_at", { ascending: false })
+          .limit(LIMIT);
+      }
 
       if (result && result.error && CurioShop.missingPriceColumns(result.error)) {
         result = await client
@@ -153,7 +162,9 @@
 
       if (result.error) throw result.error;
 
-      var products = CurioShop.sortLatest((result.data || []).filter(CurioShop.isPublicProduct)).slice(0, LIMIT);
+      var products = CurioShop.sortLatest((result.data || []).map(function (product) {
+        return CurioShop.presentProduct(product);
+      }).filter(CurioShop.isPublicProduct)).slice(0, LIMIT);
       render(products);
     } catch (error) {
       grid.replaceChildren();

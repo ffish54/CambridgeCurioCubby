@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+      (function () {
+        var hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+        var queryParams = new URLSearchParams(window.location.search);
+        var type = queryParams.get("type") || hashParams.get("type") || "";
+        if (type === "recovery") {
+          window.location.replace("account-reset.html" + window.location.search + window.location.hash);
+          return;
+        }
+        if (type === "signup" || type === "magiclink" || type === "email" || type === "invite") {
+          window.location.replace("account.html" + window.location.search + window.location.hash);
+        }
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create a Cambridge Curio Cubbyhole account so you can follow offers and keep your details.">
+    <title>Create an account | Cambridge Curio Cubbyhole</title>
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <link rel="stylesheet" href="assets/css/account.css">
+    <link rel="stylesheet" href="assets/css/mobile-nav.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body class="shop-page">
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+            </a>
+            <button class="mobile-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+            <nav class="main-nav" id="site-nav" aria-label="Main navigation">
+                <a href="index.html">The Cubbyhole</a>
+                <a href="shop.html">Shop</a>
+                <a href="our_story.html">Our Story</a>
+                <a href="journal.html">Journal</a>
+                <a href="contact_us.html">Contact</a>
+                <a href="sign-in.html" id="account-nav" data-account-nav>Sign in</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="account-main">
+        <section class="account-sheet">
+            <p class="eyebrow">YOUR ACCOUNT</p>
+            <h1>Create an account</h1>
+            <p>We email you a confirmation link. The account stays closed until you open it. Offers you have already sent with the same email can then appear on your account.</p>
+            <form id="sign-up-form" class="account-form" novalidate>
+                <label for="display-name">Your name</label>
+                <input id="display-name" name="name" type="text" required maxlength="120" autocomplete="name">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" required maxlength="200" autocomplete="email">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password">
+                <label for="confirm-password">Confirm password</label>
+                <input id="confirm-password" name="confirm-password" type="password" required minlength="8" autocomplete="new-password">
+                <p class="account-lead">At least 8 characters.</p>
+                <label class="account-check" for="marketing-consent">
+                    <input id="marketing-consent" name="marketing" type="checkbox">
+                    <span>Email me occasionally about new pieces. This is off unless you tick it, and you can turn it off later. We never share your email.</span>
+                </label>
+                <p class="account-lead">Read how we keep your details on the <a href="privacy.html">privacy page</a>.</p>
+                <div id="auth-captcha" hidden></div>
+                <div class="account-actions">
+                    <button type="submit" id="sign-up-submit" class="account-button">Create account</button>
+                </div>
+                <p id="sign-up-message" class="account-status" role="status" aria-live="polite"></p>
+                <p class="account-links"><a href="sign-in.html">Already have an account? Sign in</a></p>
+            </form>
+            <noscript><p>JavaScript is required to create an account.</p></noscript>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">
+            <img src="assets/images/curio-cubbyhole-logo.jpg" alt="Cambridge Curio Cubbyhole" width="1024" height="1024">
+        </div>
+        <div class="footer-message">
+            <p>Every object has a story.</p>
+            <span>Come and find yours.</span>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span><a href="privacy.html">Privacy</a></span>
+            <span>Vintage &amp; preloved curiosities</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/auth-captcha.js"></script>
+    <script src="assets/js/sign-up.js"></script>
+    <script src="assets/js/account-nav.js"></script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>

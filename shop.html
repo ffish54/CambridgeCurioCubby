@@ -7,8 +7,13 @@
         var hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
         var queryParams = new URLSearchParams(window.location.search);
         var type = queryParams.get("type") || hashParams.get("type");
-        if (type !== "recovery") return;
-        window.location.replace("reset-password.html" + window.location.search + window.location.hash);
+        if (type === "recovery") {
+          window.location.replace("reset-password.html" + window.location.search + window.location.hash);
+          return;
+        }
+        if (type === "signup" || type === "magiclink" || type === "email" || type === "invite") {
+          window.location.replace("account.html" + window.location.search + window.location.hash);
+        }
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,6 +55,7 @@
                 <a href="our_story.html">Our Story</a>
                 <a href="journal.html">Journal</a>
                 <a href="contact_us.html">Contact</a>
+                <a href="sign-in.html" id="account-nav" data-account-nav>Sign in</a>
             </nav>
         </div>
     </header>
@@ -117,6 +123,7 @@
                         <form id="piece-offer" class="piece-offer" hidden novalidate>
                             <h2 class="piece-offer-heading">Make an offer</h2>
                             <p class="piece-offer-lead">Tell us what you would like to pay. We will reply by email if we can accept it. Nothing is charged from this page.</p>
+                            <p id="offer-account-note" class="piece-offer-lead" hidden></p>
                             <div class="offer-honeypot" aria-hidden="true">
                                 <label for="offer-company">Company website</label>
                                 <input id="offer-company" name="company_website" type="text" tabindex="-1" autocomplete="off">
@@ -171,6 +178,7 @@
         </div>
         <div class="footer-bottom">
             <span>© 2026 Cambridge Curio Cubbyhole</span>
+            <span><a href="privacy.html">Privacy</a></span>
             <span>Vintage &amp; preloved curiosities</span>
         </div>
     </footer>
@@ -179,6 +187,7 @@
     <script src="assets/js/supabase-config.js"></script>
     <script src="assets/js/shop-catalog.js"></script>
     <script src="assets/js/shop.js"></script>
+    <script src="assets/js/account-nav.js"></script>
     <script src="assets/js/nav.js"></script>
 </body>
 </html>

@@ -31,6 +31,12 @@
     font-size: 18px;
 }
 
+.footer-bottom a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .mobile-menu:focus-visible {
     outline: 2px solid var(--gold-light, #dfc27d);
     outline-offset: 3px;

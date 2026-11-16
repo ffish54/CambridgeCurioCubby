@@ -53,12 +53,29 @@ The script is safe to run again. It creates `offers` and `sales` if they are mis
 
 What you should see:
 
-- Table `offers`. A visitor may insert one new offer and cannot read any row back. Only the admin user can read, update, or delete offers.
+- Table `offers`. A visitor may insert one new offer and cannot read the list back. Only the admin user can read, update, or delete every offer. After `customer-accounts.sql`, a signed-in customer can read their own offers.
 - Table `sales`. Only the admin user can read or write it. `payment_ref` and `source` are empty for sales you type in. A later Stripe or Square webhook can fill them by inserting with the service role, which bypasses these policies.
 - On the shop, **Make an offer** on an available or reserved piece. Sold pieces do not show it.
 - In the cabinet, **Notifications**, with a count of offers still marked new.
 
 An offer stores the customer’s name, email address, phone number if they gave one, the amount, and any message, so you can reply. That is personal data. Say so wherever you describe what the shop keeps (the shop links the consent box to `privacy.html`). There is still no card payment on the site.
+
+## Customer accounts
+
+Signed-in customers can follow their own offers, accept or decline a counter-offer, export their data, and delete the account. Guests can still make an offer exactly as before.
+
+1. Open **SQL Editor → New query**.
+2. Paste the whole of `supabase/customer-accounts.sql`.
+3. Choose **Run**.
+4. Enable **pg_cron** (Database → Extensions), then run the script again so the hourly hold release and the monthly inactive-account deletion are scheduled.
+
+The steps for the Supabase dashboard, including the site URL and redirect URLs, are in the pull request that added this file. The script is safe to run again. It does not alter `storage.objects`. A customer account cannot open the cabinet: admin policies still require the one admin user id.
+
+What you should see after it has run:
+
+- Table `profiles`. A customer reads and updates only their own row. Marketing consent defaults to off.
+- `offers.user_id`, empty for guest offers. A signed-in customer can read their own offers and cannot read anyone else’s.
+- `products.reserved_until`. Accepting a counter-offer holds the piece for 3 days. The cabinet can extend the hold, release it, or mark the piece sold.
 
 ## 2. Confirm the bucket
 

@@ -23,6 +23,11 @@
 -- This script does not alter storage.objects, storage.buckets, or storage
 -- policies. Re-running it is safe: tables are created only if missing,
 -- columns are added only if missing, and policies are replaced.
+--
+-- Customer accounts live in supabase/customer-accounts.sql. That file adds
+-- offers.user_id and replaces the offer trigger and the public insert
+-- policy. If you run this file again after that, run customer-accounts.sql
+-- again afterwards so signed-in offers stay attached to the right account.
 
 create table if not exists public.offers (
   id uuid primary key default gen_random_uuid(),

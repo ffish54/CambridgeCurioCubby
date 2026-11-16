@@ -1,0 +1,182 @@
+/* Customer account pages. Same navy, gold, and parchment as the shop. */
+
+.account-main {
+    width: min(760px, 92%);
+    margin: 28px auto 72px;
+}
+
+.account-sheet {
+    padding: clamp(18px, 3vw, 36px);
+    background: #f5efe2;
+    color: #241c14;
+    border: 1px solid #c5a15b;
+}
+
+.account-sheet + .account-sheet {
+    margin-top: 18px;
+}
+
+.account-sheet .eyebrow {
+    margin: 0 0 8px;
+    color: #7a6233;
+}
+
+.account-sheet h1,
+.account-sheet h2 {
+    margin: 0 0 10px;
+    font-family: var(--heading-font);
+    font-weight: 500;
+    line-height: 1;
+    color: #0d1b2a;
+}
+
+.account-sheet h1 {
+    font-size: clamp(36px, 6vw, 56px);
+}
+
+.account-sheet h2 {
+    font-size: clamp(28px, 4vw, 36px);
+}
+
+.account-sheet p,
+.account-lead {
+    margin: 0 0 14px;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.account-sheet a {
+    color: #7a6233;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.account-form label,
+.account-check {
+    display: block;
+    margin: 14px 0 6px;
+    font-family: var(--heading-font);
+    font-size: 18px;
+    color: #0d1b2a;
+}
+
+.account-form input[type="text"],
+.account-form input[type="email"],
+.account-form input[type="password"],
+.account-form input[type="tel"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #c5a15b;
+    background: #fffdf8;
+    color: #0d1b2a;
+    font: inherit;
+}
+
+.account-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-family: var(--body-font);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.account-check input {
+    margin-top: 4px;
+    flex: 0 0 auto;
+}
+
+.account-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.account-button,
+.account-button-quiet,
+.account-button-danger {
+    border: 1px solid #0d1b2a;
+    background: #0d1b2a;
+    color: #f5efe2;
+    padding: 12px 16px;
+    font-family: var(--heading-font);
+    font-size: 18px;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+}
+
+.account-button-quiet {
+    background: transparent;
+    color: #0d1b2a;
+}
+
+.account-button-danger {
+    background: transparent;
+    color: #7a3030;
+    border-color: #7a3030;
+}
+
+.account-button:disabled,
+.account-button-quiet:disabled,
+.account-button-danger:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.account-status {
+    min-height: 1.4em;
+    margin: 12px 0 0;
+}
+
+.account-status.is-error {
+    color: #7a3030;
+}
+
+.account-status.is-ok {
+    color: #2f5d3a;
+}
+
+.account-offers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.account-offer {
+    padding: 14px 0;
+    border-top: 1px solid rgba(13, 27, 42, 0.15);
+}
+
+.account-offer h3 {
+    margin: 0 0 4px;
+    font-family: var(--heading-font);
+    font-size: 26px;
+    font-weight: 500;
+    color: #0d1b2a;
+}
+
+.account-offer p {
+    margin: 0 0 6px;
+}
+
+.account-pill {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 2px 8px;
+    border: 1px solid #c5a15b;
+    font-family: var(--heading-font);
+    letter-spacing: 0.4px;
+}
+
+#auth-captcha {
+    margin-top: 16px;
+}
+
+.account-links {
+    margin-top: 16px;
+}
+
+.account-links a {
+    margin-right: 14px;
+}

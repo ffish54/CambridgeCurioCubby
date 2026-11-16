@@ -233,13 +233,26 @@ resetForm.addEventListener("submit", async (event) => {
   resetForm.hidden = true;
   setResetMessage("Password updated. Returning you to sign in…", "ok");
 
+  let adminAccount = false;
+  try {
+    const userResult = await supabaseClient.auth.getUser();
+    const user = userResult.data && userResult.data.user;
+    adminAccount = Boolean(
+      user
+      && typeof ADMIN_USER_ID === "string"
+      && String(user.id).toLowerCase() === String(ADMIN_USER_ID).toLowerCase()
+    );
+  } catch (userError) {
+    adminAccount = false;
+  }
+
   try {
     await supabaseClient.auth.signOut({ scope: "local" });
   } catch (signOutError) {
     // The password is already saved. Sign-in replaces this browser session.
   }
 
-  window.location.replace("admin-login.html?reset=success");
+  window.location.replace(adminAccount ? "admin-login.html?reset=success" : "sign-in.html?reset=success");
 });
 
 init();
