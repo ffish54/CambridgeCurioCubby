@@ -160,6 +160,11 @@
     margin: 0 0 6px;
 }
 
+.account-updates {
+    margin: 0 0 12px;
+    color: #0d1b2a;
+}
+
 .account-pill {
     display: inline-block;
     margin-right: 8px;
@@ -167,6 +172,12 @@
     border: 1px solid #c5a15b;
     font-family: var(--heading-font);
     letter-spacing: 0.4px;
+}
+
+.account-pill.is-updated {
+    background: #0d1b2a;
+    color: #f5efe2;
+    border-color: #0d1b2a;
 }
 
 #auth-captcha {

@@ -359,7 +359,9 @@ const notesJs = fs.readFileSync(new URL("../assets/js/admin-notifications.js", i
 assert.match(notesJs, /postgres_changes/);
 assert.match(notesJs, /notifications-refresh/);
 assert.match(notesJs, /curioSuggestSale/);
-assert.match(notesJs, /counterMailto/);
+assert.match(notesJs, /The customer is emailed/);
+assert.doesNotMatch(notesJs, /counterMailto/);
+assert.doesNotMatch(notesJs, /openMailto/);
 assert.match(notesJs, /status: "accepted"/);
 assert.match(notesJs, /payment_ref|source/);
 
