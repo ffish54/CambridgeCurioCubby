@@ -10,6 +10,10 @@
 
   var user = null;
   var busy = false;
+  var offersViewedAt = null;
+  var offersViewedReady = false;
+  var offersSeenStamped = false;
+  var touchedOfferIds = {};
 
   function isAdmin(account) {
     if (!account || !account.id || typeof ADMIN_USER_ID !== "string") return false;
@@ -95,6 +99,31 @@
     if (email) email.textContent = user.email || "";
   }
 
+  function offerUnseen(offer) {
+    if (!offersViewedReady || !offersViewedAt || !offer) return false;
+    if (touchedOfferIds[offer.id]) return false;
+    if (offer.status !== "accepted" && offer.status !== "declined" && offer.status !== "countered") return false;
+    var updated = Date.parse(offer.updated_at || "");
+    var seen = Date.parse(offersViewedAt);
+    if (Number.isNaN(updated) || Number.isNaN(seen)) return false;
+    return updated > seen;
+  }
+
+  function showOfferUpdates(count) {
+    var updates = document.getElementById("offer-updates");
+    if (!updates) return;
+    if (count === 1) {
+      updates.hidden = false;
+      updates.textContent = "One offer has changed since you last looked.";
+    } else if (count > 1) {
+      updates.hidden = false;
+      updates.textContent = count + " offers have changed since you last looked.";
+    } else {
+      updates.hidden = true;
+      updates.textContent = "";
+    }
+  }
+
   function renderOffers(offers) {
     var list = document.getElementById("offer-list");
     var empty = document.getElementById("offer-empty");
@@ -102,9 +131,11 @@
     list.replaceChildren();
     if (!offers.length) {
       if (empty) empty.hidden = false;
+      showOfferUpdates(0);
       return;
     }
     if (empty) empty.hidden = true;
+    var unseenCount = 0;
     offers.forEach(function (offer) {
       var item = document.createElement("li");
       item.className = "account-offer";
@@ -127,6 +158,13 @@
       pill.className = "account-pill";
       pill.textContent = statusLabel(offer.status);
       meta.append(pill);
+      if (offerUnseen(offer)) {
+        unseenCount += 1;
+        var updatedPill = document.createElement("span");
+        updatedPill.className = "account-pill is-updated";
+        updatedPill.textContent = "Updated";
+        meta.append(updatedPill);
+      }
       meta.append(document.createTextNode(
         [optionLabel(offer.option), money(offer.amount), when(offer.created_at)].filter(Boolean).join(" · ")
       ));
@@ -156,6 +194,7 @@
       }
       list.append(item);
     });
+    showOfferUpdates(unseenCount);
   }
 
   function makeButton(text, decision, quiet) {
@@ -167,18 +206,40 @@
     return button;
   }
 
+  async function loadOffersViewed() {
+    if (offersViewedReady) return;
+    var viewed = await supabaseClient
+      .from("profiles")
+      .select("offers_viewed_at")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (viewed.error) return;
+    offersViewedReady = true;
+    offersViewedAt = viewed.data && viewed.data.offers_viewed_at ? viewed.data.offers_viewed_at : null;
+  }
+
+  async function stampOffersViewed() {
+    if (!offersViewedReady || offersSeenStamped) return;
+    offersSeenStamped = true;
+    await supabaseClient
+      .from("profiles")
+      .update({ offers_viewed_at: new Date().toISOString() })
+      .eq("id", user.id);
+  }
+
   async function loadOffers(options) {
     var quiet = options && options.quiet;
     if (!quiet) setLine("offer-message", "Opening your offers…");
+    await loadOffersViewed();
     var embedded = await supabaseClient
       .from("offers")
-      .select("id, product_title, amount, option, status, counter_amount, message, created_at, products(slug, status, reserved_until)")
+      .select("id, product_title, amount, option, status, counter_amount, message, created_at, updated_at, products(slug, status, reserved_until)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     if (embedded.error) {
       var plain = await supabaseClient
         .from("offers")
-        .select("id, product_title, amount, option, status, counter_amount, message, created_at")
+        .select("id, product_title, amount, option, status, counter_amount, message, created_at, updated_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (plain.error) {
@@ -187,11 +248,17 @@
         return;
       }
       renderOffers(plain.data || []);
-      if (!quiet) setLine("offer-message", "");
+      if (!quiet) {
+        setLine("offer-message", "");
+        await stampOffersViewed();
+      }
       return;
     }
     renderOffers(embedded.data || []);
-    if (!quiet) setLine("offer-message", "");
+    if (!quiet) {
+      setLine("offer-message", "");
+      await stampOffersViewed();
+    }
   }
 
   async function saveProfile(event) {
@@ -280,6 +347,7 @@
       ? "Accept this counter-offer? The piece is held for you for 3 days."
       : "Decline this counter-offer? The piece is left as it is.";
     if (!window.confirm(question)) return;
+    touchedOfferIds[offerId] = true;
     busy = true;
     setLine("offer-message", decision === "accept" ? "Accepting…" : "Declining…");
     var result = await supabaseClient.rpc("respond_to_counter", {

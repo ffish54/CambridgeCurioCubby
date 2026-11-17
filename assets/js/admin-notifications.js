@@ -463,15 +463,6 @@
     }
   }
 
-  function openMailto(href) {
-    if (!href) return;
-    var link = document.createElement("a");
-    link.href = href;
-    document.body.append(link);
-    link.click();
-    link.remove();
-  }
-
   function showDialog(dialog) {
     if (!dialog || typeof dialog.showModal !== "function") return;
     if (dialog.open) dialog.close();
@@ -716,7 +707,6 @@
       return;
     }
     var offer = counterOffer;
-    var href = CurioShop.counterMailto(offer, amount);
     saleSaving = true;
     var button = document.getElementById("counter-send");
     if (button) button.disabled = true;
@@ -735,9 +725,8 @@
         return;
       }
       if (counterDialog.open) counterDialog.close();
-      openMailto(href);
       await load({ quiet: true });
-      setMessage("Offer marked as countered.", "ok");
+      setMessage("Offer marked as countered. The customer is emailed at the address on the offer.", "ok");
     } catch (error) {
       setDialogMessage("counter-message", "Could not reach Supabase. Try again.", "error");
     } finally {

@@ -77,6 +77,12 @@ What you should see after it has run:
 - `offers.user_id`, empty for guest offers. A signed-in customer can read their own offers and cannot read anyone else’s.
 - `products.reserved_until`. Accepting a counter-offer holds the piece for 3 days. The cabinet can extend the hold, release it, or mark the piece sold.
 
+## Offer emails
+
+Accepting, declining, or countering an offer emails the address on that offer. A hold that came from an accepted counter-offer also emails the customer when it ends, and again if that piece is then marked sold. The steps — pg_net, a Brevo API key, the Vault secret `brevo_api_key`, then the SQL — are at the top of `supabase/offer-emails.sql`. The script is safe to run again. It does not alter `storage.objects`, and it does not put the API key in the website.
+
+The sender is the one row in `offer_email_config`. The default is Cambridge Curio Cubbyhole, hello@thecuriocubbyhole.com. Change that row to change the sender. Do not edit the functions.
+
 ## 2. Confirm the bucket
 
 1. Open **Storage**.
