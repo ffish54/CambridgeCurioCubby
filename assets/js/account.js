@@ -356,8 +356,10 @@
     });
     busy = false;
     if (result.error) {
-      var text = String(result.error.message || "");
-      if (/no counter-offer/i.test(text)) setLine("offer-message", "There is no counter-offer waiting on this one.", "error");
+      var text = [result.error.message, result.error.details, result.error.hint].filter(Boolean).join(" ");
+      if (/reserved for another buyer/i.test(text)) {
+        setLine("offer-message", "Sorry, this piece is currently reserved for another buyer.", "error");
+      } else if (/no counter-offer/i.test(text)) setLine("offer-message", "There is no counter-offer waiting on this one.", "error");
       else if (/cannot be reserved|already been sold/i.test(text)) setLine("offer-message", "This piece can no longer be held.", "error");
       else if (/not on your account|sign in/i.test(text)) setLine("offer-message", "Please sign in again, then try that offer.", "error");
       else setLine("offer-message", "We could not update that offer. Please try again.", "error");

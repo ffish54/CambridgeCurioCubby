@@ -454,9 +454,8 @@
     if (product.status === "reserved") {
       note.hidden = false;
       var until = product.reserved_until ? CurioShop.formatWhen(product.reserved_until) : "";
-      note.textContent = until
-        ? "Reserved until " + until + ". This piece is being held. You can still make an offer, or enquire if you would like to know whether it comes free."
-        : "Reserved. This piece is being held. You can still make an offer, or enquire if you would like to know whether it comes free.";
+      var heldNote = "This piece is currently reserved. You can still make an offer in case it becomes available again.";
+      note.textContent = until ? "Reserved until " + until + ". " + heldNote : heldNote;
     } else if (product.status === "sold") {
       note.hidden = false;
       note.textContent = "Sold. This piece has found a home. You are welcome to ask if something similar turns up.";

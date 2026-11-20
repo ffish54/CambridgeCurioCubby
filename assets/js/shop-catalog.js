@@ -223,6 +223,13 @@
     return until.getTime() <= clock.getTime();
   }
 
+  function heldForAnotherOffer(product, holdOfferId, offerId, now) {
+    if (!product || !holdOfferId || !offerId) return false;
+    if (String(holdOfferId).toLowerCase() === String(offerId).toLowerCase()) return false;
+    if (product.status !== "reserved" || !product.reserved_until) return false;
+    return !reservationExpired(product, now);
+  }
+
   function displayStatus(product, now) {
     if (!product) return "";
     if (reservationExpired(product, now)) return "available";
@@ -627,6 +634,7 @@
     galleryUrls: galleryUrls,
     statusLabel: statusLabel,
     reservationExpired: reservationExpired,
+    heldForAnotherOffer: heldForAnotherOffer,
     displayStatus: displayStatus,
     presentProduct: presentProduct,
     columnsWithHold: columnsWithHold,

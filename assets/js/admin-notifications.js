@@ -20,6 +20,7 @@
   var offers = [];
   var sales = [];
   var productsById = {};
+  var holdsByProduct = {};
   var filter = "all";
   var loading = false;
   var pendingQuiet = null;
@@ -105,6 +106,18 @@
   function productFor(row) {
     if (!row || !row.product_id) return null;
     return productsById[row.product_id] || null;
+  }
+
+  function counterHoldWarning(offer) {
+    var product = productFor(offer);
+    if (!product || !offer || !offer.id) return "";
+    var heldFor = holdsByProduct[product.id];
+    if (!CurioShop.heldForAnotherOffer(product, heldFor, offer.id)) return "";
+    var until = CurioShop.formatWhen(product.reserved_until);
+    if (until) {
+      return "This piece is reserved for another buyer until " + until + ". This customer will not be able to accept until that hold ends. You can still send the counter-offer.";
+    }
+    return "This piece is reserved for another buyer. This customer will not be able to accept until that hold ends. You can still send the counter-offer.";
   }
 
   function offerStatusLabel(status) {
@@ -380,14 +393,37 @@
   async function loadProducts(ids) {
     productsById = {};
     if (!ids.length) return;
-    var columns = "id,slug,title,status,cover_image,images,price,price_delivered,price_item,price_collection";
+    var columns = "id,slug,title,status,reserved_until,cover_image,images,price,price_delivered,price_item,price_collection";
     var result = await supabaseClient.from("products").select(columns).in("id", ids);
+    if (result.error && CurioShop.missingHoldColumn(result.error)) {
+      columns = "id,slug,title,status,cover_image,images,price,price_delivered,price_item,price_collection";
+      result = await supabaseClient.from("products").select(columns).in("id", ids);
+    }
     if (result.error && CurioShop.missingPriceColumns(result.error)) {
-      result = await supabaseClient.from("products").select("id,slug,title,status,cover_image,images,price").in("id", ids);
+      columns = columns.indexOf("reserved_until") === -1
+        ? "id,slug,title,status,cover_image,images,price"
+        : "id,slug,title,status,reserved_until,cover_image,images,price";
+      result = await supabaseClient.from("products").select(columns).in("id", ids);
+      if (result.error && CurioShop.missingHoldColumn(result.error)) {
+        result = await supabaseClient.from("products").select("id,slug,title,status,cover_image,images,price").in("id", ids);
+      }
     }
     if (result.error) return;
     (result.data || []).forEach(function (product) {
       productsById[product.id] = product;
+    });
+  }
+
+  async function loadHolds(ids) {
+    holdsByProduct = {};
+    if (!ids.length || !supabaseClient) return;
+    var result = await supabaseClient
+      .from("offer_holds")
+      .select("product_id, offer_id")
+      .in("product_id", ids);
+    if (result.error) return;
+    (result.data || []).forEach(function (row) {
+      if (row && row.product_id && row.offer_id) holdsByProduct[row.product_id] = row.offer_id;
     });
   }
 
@@ -421,6 +457,7 @@
         if (row.product_id && ids.indexOf(row.product_id) === -1) ids.push(row.product_id);
       });
       await loadProducts(ids);
+      await loadHolds(ids);
       if (!settings.quiet) setMessage("");
       render();
     } catch (error) {
@@ -525,10 +562,16 @@
     counterOffer = offer;
     var intro = document.getElementById("counter-intro");
     var amount = document.getElementById("counter-amount");
+    var warning = document.getElementById("counter-hold-warning");
     if (intro) {
       intro.textContent = (offer.name || "The customer") + " offered " + (CurioShop.formatPrice(offer.amount) || "an amount") + " for “" + (offer.product_title || "this piece") + "”.";
     }
     if (amount) amount.value = priceInput(offer.counter_amount || offer.amount);
+    if (warning) {
+      var note = counterHoldWarning(offer);
+      warning.hidden = !note;
+      warning.textContent = note;
+    }
     setDialogMessage("counter-message", "");
     showDialog(counterDialog);
     if (amount) amount.focus();

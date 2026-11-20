@@ -324,6 +324,7 @@
       <label for="counter-amount">Counter amount (£)</label>
       <input id="counter-amount" name="counter_amount" type="text" inputmode="decimal" maxlength="12" autocomplete="off" required>
       <p class="hint">This marks the offer as countered and emails the customer at the address on the offer.</p>
+      <p id="counter-hold-warning" class="hint is-warning" hidden></p>
       <p id="counter-message" class="status-message" role="status" aria-live="polite"></p>
       <div class="form-actions">
         <button type="submit" id="counter-send" class="solid-button">Send counter-offer</button>

@@ -442,6 +442,10 @@ body.admin-dashboard {
   font-size: 14px;
 }
 
+.hint.is-warning {
+  color: #7a3030;
+}
+
 .empty-state {
   padding: 8px 0 4px;
   font-style: italic;

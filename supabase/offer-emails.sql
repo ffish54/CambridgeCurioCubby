@@ -5,6 +5,10 @@
 -- paste → Run). It is safe to run again. Running it again does not email
 -- anyone, and it does not change the sender row if that row is already there.
 --
+-- A database that already ran an earlier copy of this file should also run
+-- supabase/hold-takeover-fix.sql so an active hold is not handed to a
+-- different offer.
+--
 -- What this sets up
 --   * When the cabinet accepts, declines, or counters an offer, the address
 --     on that offer is emailed. Guest offers and account offers both work.
@@ -18,7 +22,9 @@
 --   * public.offer_email_log — one row per attempt. A failure is written
 --     here and does not undo the cabinet's update.
 --   * public.offer_holds — which offer a reserved piece is being held for.
---     Not readable by the shop.
+--     Customers cannot read it. The admin cabinet can, so a counter-offer
+--     can warn when the piece is already held for someone else. An active
+--     hold is never overwritten for a different offer.
 --   * public.profiles.offers_viewed_at — so My offers can mark a status
 --     that changed after the customer last looked.
 --
@@ -296,7 +302,8 @@ comment on table public.offer_email_log is
 
 -- Which accepted counter-offer a reserved piece is held for. Written when
 -- a counter is accepted and the piece is reserved. Cleared when the piece
--- leaves reserved. The shop cannot read this.
+-- leaves reserved. Customers cannot read this. The admin cabinet can.
+-- A later accept must not replace this row while the hold is still active.
 create table if not exists public.offer_holds (
   product_id uuid primary key,
   offer_id uuid not null,
@@ -318,7 +325,7 @@ alter table public.offer_holds
   foreign key (offer_id) references public.offers (id) on delete cascade;
 
 comment on table public.offer_holds is
-  'The offer a reserved piece is held for, after a counter-offer was accepted. Removed when the piece leaves reserved.';
+  'The offer a reserved piece is held for, after a counter-offer was accepted. Removed when the piece leaves reserved. Not replaced while that hold is still active.';
 
 -- ---------------------------------------------------------------------------
 -- Wording. British English. HTML uses the shop colours. Plain text goes too.
@@ -839,14 +846,46 @@ security definer
 set search_path = pg_catalog, public
 as $remember$
 begin
+  -- ccc.hold_takeover_blocked is set to 'no' by offers_before_write only
+  -- after a customer accept has been allowed to take the hold, including
+  -- when the previous hold has already expired or been released. This runs
+  -- after reserved_until has moved forward, so that flag is what tells an
+  -- allowed replacement from a hold that was already active. When the flag
+  -- is unset (the cabinet, or SQL), an active hold for a different offer
+  -- is left as it is: the row, and the emails that follow it, stay with
+  -- the first customer. A refused accept never reaches this function.
+  if current_setting('ccc.hold_takeover_blocked', true) = 'yes' then
+    return;
+  end if;
+
   insert into public.offer_holds (product_id, offer_id)
   select p.id, p_offer_id
   from public.products as p
   where p.id = p_product_id
     and p.status = 'reserved'
+    and (
+      current_setting('ccc.hold_takeover_blocked', true) = 'no'
+      or not exists (
+        select 1
+        from public.offer_holds as existing
+        where existing.product_id = p.id
+          and existing.offer_id is distinct from p_offer_id
+          and p.status = 'reserved'
+          and p.reserved_until > pg_catalog.now()
+      )
+    )
   on conflict (product_id) do update
   set offer_id = excluded.offer_id,
-      created_at = now();
+      created_at = pg_catalog.now()
+  where current_setting('ccc.hold_takeover_blocked', true) = 'no'
+     or offer_holds.offer_id is not distinct from excluded.offer_id
+     or not exists (
+       select 1
+       from public.products as held_piece
+       where held_piece.id = offer_holds.product_id
+         and held_piece.status = 'reserved'
+         and held_piece.reserved_until > pg_catalog.now()
+     );
 exception
   when others then
     null;
@@ -1123,6 +1162,7 @@ revoke all on table public.offer_holds from public, anon, authenticated;
 
 grant select, update on table public.offer_email_config to authenticated;
 grant select on table public.offer_email_log to authenticated;
+grant select on table public.offer_holds to authenticated;
 
 drop policy if exists "Admin reads offer email settings" on public.offer_email_config;
 create policy "Admin reads offer email settings"
@@ -1142,6 +1182,13 @@ with check (auth.uid() = '222043d1-053b-45be-ab39-20216c84ee86'::uuid);
 drop policy if exists "Admin reads offer email log" on public.offer_email_log;
 create policy "Admin reads offer email log"
 on public.offer_email_log
+for select
+to authenticated
+using (auth.uid() = '222043d1-053b-45be-ab39-20216c84ee86'::uuid);
+
+drop policy if exists "Admin reads offer holds" on public.offer_holds;
+create policy "Admin reads offer holds"
+on public.offer_holds
 for select
 to authenticated
 using (auth.uid() = '222043d1-053b-45be-ab39-20216c84ee86'::uuid);
