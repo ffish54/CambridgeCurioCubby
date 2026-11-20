@@ -26,7 +26,9 @@
 --     own offers. They cannot update or delete offers directly.
 --   * respond_to_counter(offer_id, decision) — the signed-in customer
 --     accepts or declines a counter-offer on their own offer. Accepting
---     sets that piece to reserved and reserved_until to now() + 3 days.
+--     sets that piece to reserved and reserved_until to now() + 3 days,
+--     unless the piece is already reserved for a different offer and that
+--     hold has not run out. A second customer cannot take that hold.
 --   * link_guest_offers() — attaches earlier guest offers whose email
 --     matches this customer's confirmed email. The email is read from
 --     auth.users, not from the browser.
@@ -52,6 +54,11 @@
 -- If you run supabase/shop-notifications.sql again afterwards, run this
 -- file again too. That script replaces the offer trigger and the public
 -- insert policy; this file puts the account behaviour back.
+--
+-- A database that already ran an earlier copy of this file should also run
+-- supabase/hold-takeover-fix.sql (or run this updated file again). That
+-- stops a second customer accepting a counter-offer while another buyer's
+-- hold is still active.
 --
 -- pg_cron
 --   The tables and policies work without it. The hourly release and the
@@ -322,8 +329,9 @@ $link$;
 
 -- ---------------------------------------------------------------------------
 -- Offer trigger. Guests and customers cannot set status, a counter, or
--- somebody else's user id. Accepting a counter reserves the piece. The
--- admin user is unchanged: the cabinet can still edit any column.
+-- somebody else's user id. Accepting a counter reserves the piece, unless
+-- another buyer's hold is still running. The admin user is unchanged: the
+-- cabinet can still edit any column.
 -- ---------------------------------------------------------------------------
 
 create or replace function public.offers_before_write()
@@ -334,6 +342,8 @@ set search_path = public
 as $offers$
 declare
   piece_status text;
+  piece_until timestamptz;
+  held_offer uuid;
   admin_uid uuid := '222043d1-053b-45be-ab39-20216c84ee86'::uuid;
 begin
   if tg_op = 'INSERT'
@@ -377,8 +387,9 @@ begin
   -- can anonymise offers. Customers cannot set that through the website API.
   -- A missing JWT (the monthly job) is also allowed through: there is no
   -- customer to impersonate. A signed-in customer who is not the admin can
-  -- only accept or decline their own counter-offer, and accepting reserves
-  -- the piece. The admin cabinet is not limited here.
+  -- only accept or decline their own counter-offer. Accepting reserves the
+  -- piece, unless it is already reserved for a different offer until a time
+  -- that has not yet passed. The admin cabinet is not limited here.
   if tg_op = 'UPDATE'
     and current_setting('ccc.account_maintenance', true) is distinct from 'on'
     and auth.uid() is not null
@@ -410,7 +421,8 @@ begin
         raise exception 'This piece cannot be reserved just now' using errcode = '23514';
       end if;
 
-      select p.status into piece_status
+      select p.status, p.reserved_until
+      into piece_status, piece_until
       from public.products as p
       where p.id = old.product_id
       for update;
@@ -418,6 +430,32 @@ begin
       if piece_status is null or piece_status not in ('available', 'reserved') then
         raise exception 'This piece cannot be reserved just now' using errcode = '23514';
       end if;
+
+      -- A live hold is reserved, still in the future, and recorded against
+      -- another offer. An expired or empty reserved_until, a piece that is
+      -- available again, or the same offer, can still be accepted. Raising
+      -- here rolls the update back, so the existing hold row is not replaced
+      -- and the first customer is not emailed about a lost hold.
+      held_offer := null;
+      if piece_status = 'reserved'
+         and piece_until > now()
+         and to_regclass('public.offer_holds') is not null then
+        select h.offer_id into held_offer
+        from public.offer_holds as h
+        where h.product_id = old.product_id
+        for update;
+
+        if held_offer is not null and held_offer is distinct from old.id then
+          raise exception 'Sorry, this piece is currently reserved for another buyer.'
+            using errcode = '23514';
+        end if;
+      end if;
+
+      -- 'no' means this accept may take the hold. offer_email_remember_hold
+      -- runs after reserved_until has moved, so it cannot tell an expired
+      -- hold from the three days just written here. The flag is local to
+      -- this transaction. A refusal above never reaches this line.
+      perform set_config('ccc.hold_takeover_blocked', 'no', true);
 
       update public.products
       set status = 'reserved',
@@ -440,9 +478,9 @@ execute function public.offers_before_write();
 
 -- The account page calls this. It checks the caller, then updates the offer.
 -- The trigger above is what reserves the piece, and it only does that for
--- the customer who owns a countered offer. The admin cabinet does not use
--- this function; its own updates are left alone because auth.uid() is the
--- admin id.
+-- the customer who owns a countered offer. It refuses when another buyer's
+-- hold is still running. The admin cabinet does not use this function; its
+-- own updates are left alone because auth.uid() is the admin id.
 create or replace function public.respond_to_counter(offer_id uuid, decision text)
 returns jsonb
 language plpgsql
